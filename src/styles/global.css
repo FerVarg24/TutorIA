@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand & accent — DESIGN.md */
+  --color-primary: #150f23;
+  --color-ink-deep: #1f1633;
+  --color-on-primary: #ffffff;
+  --color-accent-lime: #c2ef4e;
+  --color-accent-pink: #fa7faa;
+  --color-accent-violet: #6a5fc1;
+  --color-accent-violet-deep: #422082;
+  --color-accent-violet-mid: #79628c;
+
+  /* Surfaces */
+  --color-surface-canvas-dark: #1f1633;
+  --color-surface-canvas-light: #ffffff;
+  --color-surface-night: #150f23;
+  --color-surface-press-light: #f0f0f0;
+  --color-surface-press-stronger: #efefef;
+
+  /* Hairlines */
+  --color-hairline-violet: #362d59;
+  --color-hairline-cool: #cfcfdb;
+  --color-hairline-cloud: #e5e7eb;
+
+  /* Text */
+  --color-ink: #1f1633;
+  --color-ink-press: #1a1a1a;
+  --color-on-dark-muted: #bdb8c0;
+  --color-on-dark-faint: #3f3849;
+  --color-ring-focus: #9dc1f5;
+
+  /* Semantic risk — Context.md */
+  --color-riesgo-alto: #e94f4f;
+  --color-riesgo-medio: #e9a94f;
+  --color-riesgo-bajo: #4fe97a;
+  --color-iniciativa-alumno: #9b4fe9;
+
+  /* Typography */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-ui: "Rubik", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-code: Monaco, Menlo, "Ubuntu Mono", monospace;
+
+  /* Spacing — DESIGN.md */
+  --spacing-xxs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  --spacing-section: 96px;
+
+  /* Border radius — DESIGN.md */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-xxl: 18px;
+  --radius-full: 9999px;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-surface-canvas-dark);
+    color: var(--color-on-primary);
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-ui {
+    font-family: var(--font-ui);
+  }
+
+  .font-code {
+    font-family: var(--font-code);
+  }
+}
+
+/* Mascota animations */
+.mascota {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.mascota__avatar {
+  width: 96px;
+  height: 96px;
+}
+
+.mascota__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mascota__bubble {
+  margin-top: var(--spacing-sm);
+  max-width: 280px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-accent-violet-deep);
+  border: 1px solid var(--color-hairline-violet);
+}
+
+.mascota__mensaje {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-on-primary);
+}
+
+.mascota--flotando {
+  right: var(--spacing-xl);
+  bottom: var(--spacing-xl);
+  animation: mascota-flotando 3s ease-in-out infinite;
+}
+
+.mascota--bounce {
+  left: 50%;
+  bottom: var(--spacing-xl);
+  transform: translateX(-50%);
+  animation: mascota-bounce 2s ease-in-out infinite;
+}
+
+.mascota--entrada-derecha {
+  right: var(--spacing-xxl);
+  bottom: 30%;
+  animation: mascota-entrada-derecha 1s ease-out forwards, mascota-flotando 3s ease-in-out 1s infinite;
+}
+
+.mascota--hablando {
+  left: var(--spacing-xxl);
+  top: 20%;
+  animation: mascota-hablando 1.5s ease-in-out infinite;
+}
+
+@keyframes mascota-flotando {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes mascota-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+@keyframes mascota-entrada-derecha {
+  from { opacity: 0; transform: translateX(80px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes mascota-hablando {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Landing page */
+.landing-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-surface-canvas-dark),
+    var(--color-accent-violet-deep),
+    var(--color-ink-deep)
+  );
+  background-size: 400% 400%;
+  animation: landing-gradient 12s ease infinite;
+}
+
+.landing-shapes::before,
+.landing-shapes::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.08;
+  background: var(--color-accent-lime);
+}
+
+.landing-shapes::before {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  left: 5%;
+  animation: mascota-flotando 8s ease-in-out infinite;
+}
+
+.landing-shapes::after {
+  width: 200px;
+  height: 200px;
+  bottom: 15%;
+  right: 10%;
+  animation: mascota-flotando 6s ease-in-out infinite reverse;
+}
+
+@keyframes landing-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
