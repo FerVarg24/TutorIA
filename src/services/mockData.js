@@ -273,6 +273,25 @@ export const RESPUESTAS_CUESTIONARIO = {
   },
 };
 
+// ── Questionnaire results summary (for student-side agent context) ───────────
+
+export const RESULTADOS_CUESTIONARIO = {
+  "2021630001": {
+    problema: "Academico y emocional (estres por carga laboral)",
+    recomendaciones:
+      "Guia visual de limites y derivadas, plan de estudio de 30 minutos diarios, tutorias semanales con el profesor",
+    recursos:
+      "Asesorias del departamento de matematicas, servicio de psicologia IPN, beca de apoyo a la continuidad",
+  },
+  "2021630042": {
+    problema: "Academico y economico (poco tiempo de estudio)",
+    recomendaciones:
+      "Guia de estudio paso a paso, agenda semanal con bloques cortos, seguimiento con tutor academico",
+    recursos:
+      "Tutorias IPN, beca institucional de apoyo, canalizacion a orientacion estudiantil",
+  },
+};
+
 // ── Course material (for study guide generation) ─────────────────────────────
 
 export const MATERIAL_POR_MATERIA = {
@@ -549,6 +568,14 @@ export function getAlumnoByBoleta(boleta) {
     if (alumno) return alumno;
   }
   return null;
+}
+
+/**
+ * Returns summarized questionnaire results for a student boleta.
+ */
+export function getResultadoCuestionario(boleta) {
+  if (!boleta) return null;
+  return RESULTADOS_CUESTIONARIO[boleta] ?? null;
 }
 
 /**

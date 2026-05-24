@@ -18,6 +18,7 @@
     "@copilotkit/react-ui": "^1.57.4",
     "@copilotkit/runtime": "^1.57.4",
     "@dagrejs/dagre": "^3.0.0",
+    "@elevenlabs/react": "^1.6.3",
     "@tailwindcss/vite": "^4.3.0",
     "@xyflow/react": "^12.10.2",
     "class-variance-authority": "^0.7.1",
