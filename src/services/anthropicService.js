@@ -81,15 +81,18 @@ export async function analizarCuestionario(alumno, respuestas) {
     return fallbackReporte(alumno);
   }
 
-  const prompt = `Eres un orientador educativo del IPN. Analiza las siguientes respuestas del cuestionario diagnóstico de un alumno en riesgo y genera un reporte conciso para el profesor. Identifica si los problemas son académicos, económicos o emocionales (o una combinación) y propone soluciones concretas para cada área detectada. Incluye recursos institucionales del IPN cuando aplique. Máximo 200 palabras.
+  const prompt = `Eres un orientador educativo del IPN. Analiza las siguientes respuestas del cuestionario diagnóstico de un alumno en riesgo y genera un reporte conciso para el profesor. Identifica si los problemas son académicos, económicos, emocionales o de estilo de aprendizaje (o combinación) y propone soluciones concretas para cada área. Incluye recursos institucionales del IPN cuando aplique. Máximo 220 palabras.
 
 Alumno: ${alumno.nombre}
 
-Respuestas del cuestionario:
+ESTILO DE APRENDIZAJE:
+- Resultado detectado: ${respuestas.estiloAprendizaje?.resultado ?? 'No registrado'}
+
 ACADÉMICO:
 - Horas de estudio: ${respuestas.academico?.horas_estudio}
-- Dificultad con el material: ${respuestas.academico?.dificultad_material}
-- Acceso a tecnología: ${respuestas.academico?.acceso_tecnologia}
+- Dificultad principal: ${respuestas.academico?.dificultad_material}
+- Temas difíciles: ${(respuestas.academico?.temas_dificiles ?? []).join(', ')}
+- Acceso a tecnología: ${respuestas.academico?.acceso_tecnologia ?? 'No especificado'}
 
 ECONÓMICO:
 - ¿Trabaja?: ${respuestas.economico?.trabaja}
@@ -97,9 +100,11 @@ ECONÓMICO:
 - Conoce becas: ${respuestas.economico?.conoce_becas}
 
 EMOCIONAL:
-- Agotamiento: ${respuestas.emocional?.agotamiento}
-- Red de apoyo: ${respuestas.emocional?.red_apoyo}
-- Disposición a psicólogo: ${respuestas.emocional?.dispuesto_psicologo}`;
+- Motivación: ${respuestas.emocional?.motivacion}
+- Nivel de estrés: ${respuestas.emocional?.nivel_estres}
+- Situaciones reportadas: ${(respuestas.emocional?.situaciones ?? []).join(', ')}
+- Comentario libre: ${respuestas.emocional?.comentario_libre ?? 'Ninguno'}
+- Disposición a orientación psicológica: ${respuestas.emocional?.dispuesto_psicologo}`;
 
   try {
     return await llamarAPI([{ role: "user", content: prompt }], 500);

@@ -223,6 +223,30 @@ export const MATERIAS_ALUMNO = [
 // ── Questionnaire responses (professor follow-up flow) ────────────────────────
 
 export const RESPUESTAS_CUESTIONARIO = {
+  "2021630001": {
+    estiloAprendizaje: {
+      pregunta1: "A) Hacer diagramas, mapas mentales o resúmenes con colores",
+      pregunta2: "A) Busco infografías o videos visuales",
+      resultado: "Visual",
+    },
+    academico: {
+      horas_estudio: "2 a 4 horas",
+      dificultad_material: "Entiendo la teoría pero no sé resolver ejercicios",
+      temas_dificiles: ["Límites", "Derivadas"],
+    },
+    economico: {
+      trabaja: "Sí, trabajo medio tiempo (10-25 hrs/semana)",
+      dificultades_economicas: "He tenido algunas dificultades este semestre",
+      conoce_becas: "No, no conocía los apoyos disponibles",
+    },
+    emocional: {
+      motivacion: "2 / 5 — Poco motivada",
+      nivel_estres: "4 / 5 — Me siento muy abrumada",
+      situaciones: ["Ansiedad o estrés constante", "Baja motivación para estudiar"],
+      comentario_libre: "Me cuesta mucho combinar el trabajo con la escuela, llego muy cansada.",
+      dispuesto_psicologo: "Sí, estaría dispuesta",
+    },
+  },
   "2021630042": {
     // Juan Pérez García
     academico: {
