@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
-import { getAlumnoByBoleta, getFactoresRiesgo } from '../../services/mockData.js';
+import {
+  getAlumnoEnMateria,
+  getFactoresRiesgo,
+  getMateriaIdByBoleta,
+} from '../../services/mockData.js';
 import { analizarAlumno } from '../../services/anthropicService.js';
 import TypewriterText from '../../components/TypewriterText.jsx';
 import Dashboard from '../../components/Dashboard.jsx';
@@ -11,6 +15,7 @@ import Seguimiento from './Seguimiento.jsx';
 
 export default function AlumnoDetalle() {
   const { boleta } = useParams();
+  const location = useLocation();
   const { setMascota } = useApp();
 
   const [analisis, setAnalisis] = useState('');
@@ -18,7 +23,8 @@ export default function AlumnoDetalle() {
   const [analisisCompleto, setAnalisisCompleto] = useState(false);
   const [showSeguimiento, setShowSeguimiento] = useState(false);
 
-  const alumno = getAlumnoByBoleta(boleta);
+  const materiaId = location.state?.materiaId ?? getMateriaIdByBoleta(boleta);
+  const alumno = materiaId ? getAlumnoEnMateria(boleta, materiaId) : null;
 
   useEffect(() => {
     setMascota({ modo: 'hablando', mensaje: '' });
@@ -110,6 +116,7 @@ export default function AlumnoDetalle() {
         <div className="flex flex-col gap-xl overflow-y-auto">
           <Dashboard
             alumno={alumno}
+            materiaId={materiaId}
             factores={analisisCompleto ? getFactoresRiesgo(alumno.boleta) : []}
             showTrend={true}
           />

@@ -46,7 +46,7 @@ export default function AlumnosMateria() {
 
   function handleRowClick(alumno) {
     if (alumno.nivel_riesgo === 'alto') {
-      navigate(`/profesor/alumno/${alumno.boleta}`);
+      navigate(`/profesor/alumno/${alumno.boleta}`, { state: { materiaId: id } });
     } else {
       setTooltipBoleta(alumno.boleta);
     }

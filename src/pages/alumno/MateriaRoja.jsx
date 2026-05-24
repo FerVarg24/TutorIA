@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import {
   getMateriaAlumnoById,
-  getAlumnoByBoleta,
+  getAlumnoEnMateria,
   getFactoresRiesgo,
 } from '../../services/mockData.js';
 import TypewriterText from '../../components/TypewriterText.jsx';
@@ -19,7 +19,7 @@ export default function MateriaRoja() {
   const [mensajeCompleto, setMensajeCompleto] = useState(false);
 
   const materia = getMateriaAlumnoById(id);
-  const alumno = getAlumnoByBoleta(session?.boleta);
+  const alumno = getAlumnoEnMateria(session?.boleta, id);
 
   useEffect(() => {
     setMascota({ modo: 'hablando', mensaje: '' });
@@ -88,6 +88,7 @@ export default function MateriaRoja() {
         <div className="flex flex-col gap-xl overflow-y-auto">
           <Dashboard
             alumno={alumno}
+            materiaId={id}
             factores={mensajeCompleto ? getFactoresRiesgo(alumno.boleta) : []}
             showTrend={true}
           />

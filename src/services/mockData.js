@@ -299,6 +299,160 @@ export const FACTORES_RIESGO = {
   ],
 };
 
+// ── Per-task grades by topic (for dashboard charts) ──────────────────────────
+
+export const CALIFICACIONES_POR_TAREA = {
+  "2021630042": {
+    calc1: [
+      { id: 1, tema: "Límites", nombre: "Tarea 1: Límites laterales", calificacion: 7.5, entregada: true },
+      { id: 2, tema: "Continuidad", nombre: "Tarea 2: Continuidad", calificacion: 6.8, entregada: true },
+      { id: 3, tema: "Derivadas", nombre: "Tarea 3: Definición de derivada", calificacion: 5.2, entregada: true },
+      { id: 4, tema: "Reglas de derivación", nombre: "Tarea 4: Regla de la cadena", calificacion: 4.0, entregada: true },
+      { id: 5, tema: "Aplicaciones", nombre: "Tarea 5: Optimización", calificacion: null, entregada: false },
+      { id: 6, tema: "Aplicaciones", nombre: "Tarea 6: Teorema valor medio", calificacion: null, entregada: false },
+      { id: 7, tema: "Func. trascendentes", nombre: "Tarea 7: Derivadas trig.", calificacion: 3.5, entregada: true },
+      { id: 8, tema: "Func. trascendentes", nombre: "Tarea 8: Derivadas exp.", calificacion: null, entregada: false },
+    ],
+  },
+  "2021630001": {
+    calc1: [
+      { id: 1, tema: "Límites", nombre: "Tarea 1: Límites laterales", calificacion: 8.0, entregada: true },
+      { id: 2, tema: "Continuidad", nombre: "Tarea 2: Continuidad", calificacion: 7.2, entregada: true },
+      { id: 3, tema: "Derivadas", nombre: "Tarea 3: Definición de derivada", calificacion: 6.5, entregada: true },
+      { id: 4, tema: "Reglas de derivación", nombre: "Tarea 4: Regla de la cadena", calificacion: 5.8, entregada: true },
+      { id: 5, tema: "Aplicaciones", nombre: "Tarea 5: Optimización", calificacion: null, entregada: false },
+      { id: 6, tema: "Aplicaciones", nombre: "Tarea 6: Teorema valor medio", calificacion: null, entregada: false },
+      { id: 7, tema: "Func. trascendentes", nombre: "Tarea 7: Derivadas trig.", calificacion: null, entregada: false },
+      { id: 8, tema: "Func. trascendentes", nombre: "Tarea 8: Derivadas exp.", calificacion: null, entregada: false },
+    ],
+    fis1: [
+      { id: 1, tema: "Cinemática", nombre: "Tarea 1: MRU y MRUA", calificacion: 7.0, entregada: true },
+      { id: 2, tema: "Cinemática", nombre: "Tarea 2: Caída libre", calificacion: 6.5, entregada: true },
+      { id: 3, tema: "Dinámica", nombre: "Tarea 3: Leyes de Newton", calificacion: 6.0, entregada: true },
+      { id: 4, tema: "Dinámica", nombre: "Tarea 4: Planos inclinados", calificacion: 5.5, entregada: true },
+      { id: 5, tema: "Trabajo y energía", nombre: "Tarea 5: Energía cinética", calificacion: null, entregada: false },
+      { id: 6, tema: "Trabajo y energía", nombre: "Tarea 6: Conservación", calificacion: null, entregada: false },
+      { id: 7, tema: "Cantidad de movimiento", nombre: "Tarea 7: Impulso", calificacion: null, entregada: false },
+    ],
+  },
+  "2021630055": {
+    calc1: [
+      { id: 1, tema: "Límites", nombre: "Tarea 1: Límites laterales", calificacion: 7.0, entregada: true },
+      { id: 2, tema: "Continuidad", nombre: "Tarea 2: Continuidad", calificacion: 6.5, entregada: true },
+      { id: 3, tema: "Derivadas", nombre: "Tarea 3: Definición de derivada", calificacion: 5.5, entregada: true },
+      { id: 4, tema: "Reglas de derivación", nombre: "Tarea 4: Regla de la cadena", calificacion: 5.0, entregada: true },
+      { id: 5, tema: "Aplicaciones", nombre: "Tarea 5: Optimización", calificacion: 4.8, entregada: true },
+      { id: 6, tema: "Aplicaciones", nombre: "Tarea 6: Teorema valor medio", calificacion: null, entregada: false },
+      { id: 7, tema: "Func. trascendentes", nombre: "Tarea 7: Derivadas trig.", calificacion: null, entregada: false },
+      { id: 8, tema: "Func. trascendentes", nombre: "Tarea 8: Derivadas exp.", calificacion: null, entregada: false },
+    ],
+  },
+  "2021630120": {
+    fis1: [
+      { id: 1, tema: "Cinemática", nombre: "Tarea 1: MRU y MRUA", calificacion: 7.5, entregada: true },
+      { id: 2, tema: "Cinemática", nombre: "Tarea 2: Caída libre", calificacion: 6.0, entregada: true },
+      { id: 3, tema: "Dinámica", nombre: "Tarea 3: Leyes de Newton", calificacion: 5.0, entregada: true },
+      { id: 4, tema: "Dinámica", nombre: "Tarea 4: Planos inclinados", calificacion: 3.8, entregada: true },
+      { id: 5, tema: "Trabajo y energía", nombre: "Tarea 5: Energía cinética", calificacion: null, entregada: false },
+      { id: 6, tema: "Trabajo y energía", nombre: "Tarea 6: Conservación", calificacion: null, entregada: false },
+      { id: 7, tema: "Cantidad de movimiento", nombre: "Tarea 7: Impulso", calificacion: null, entregada: false },
+    ],
+  },
+  "2021630200": {
+    prog1: [
+      { id: 1, tema: "POO básica", nombre: "Tarea 1: Clases y objetos", calificacion: 7.0, entregada: true },
+      { id: 2, tema: "Encapsulamiento", nombre: "Tarea 2: Getters y setters", calificacion: 6.2, entregada: true },
+      { id: 3, tema: "Herencia", nombre: "Tarea 3: Herencia simple", calificacion: 5.0, entregada: true },
+      { id: 4, tema: "Polimorfismo", nombre: "Tarea 4: Sobrecarga", calificacion: null, entregada: false },
+      { id: 5, tema: "Polimorfismo", nombre: "Tarea 5: Interfaces", calificacion: null, entregada: false },
+      { id: 6, tema: "Estructuras de datos", nombre: "Tarea 6: Listas enlazadas", calificacion: null, entregada: false },
+    ],
+  },
+};
+
+// ── Weekly attendance breakdown ──────────────────────────────────────────────
+
+export const ASISTENCIA_SEMANAL = {
+  "2021630042": {
+    calc1: [
+      { semana: "Sem 1", asistio: 3, total: 3 },
+      { semana: "Sem 2", asistio: 3, total: 3 },
+      { semana: "Sem 3", asistio: 2, total: 3 },
+      { semana: "Sem 4", asistio: 1, total: 3 },
+      { semana: "Sem 5", asistio: 0, total: 3 },
+    ],
+  },
+  "2021630001": {
+    calc1: [
+      { semana: "Sem 1", asistio: 3, total: 3 },
+      { semana: "Sem 2", asistio: 2, total: 3 },
+      { semana: "Sem 3", asistio: 2, total: 3 },
+      { semana: "Sem 4", asistio: 2, total: 3 },
+      { semana: "Sem 5", asistio: 1, total: 3 },
+    ],
+    fis1: [
+      { semana: "Sem 1", asistio: 3, total: 3 },
+      { semana: "Sem 2", asistio: 3, total: 3 },
+      { semana: "Sem 3", asistio: 2, total: 3 },
+      { semana: "Sem 4", asistio: 2, total: 3 },
+      { semana: "Sem 5", asistio: 2, total: 3 },
+    ],
+  },
+  "2021630055": {
+    calc1: [
+      { semana: "Sem 1", asistio: 3, total: 3 },
+      { semana: "Sem 2", asistio: 2, total: 3 },
+      { semana: "Sem 3", asistio: 2, total: 3 },
+      { semana: "Sem 4", asistio: 2, total: 3 },
+      { semana: "Sem 5", asistio: 1, total: 3 },
+    ],
+  },
+  "2021630120": {
+    fis1: [
+      { semana: "Sem 1", asistio: 3, total: 3 },
+      { semana: "Sem 2", asistio: 2, total: 3 },
+      { semana: "Sem 3", asistio: 1, total: 3 },
+      { semana: "Sem 4", asistio: 1, total: 3 },
+      { semana: "Sem 5", asistio: 0, total: 3 },
+    ],
+  },
+  "2021630200": {
+    prog1: [
+      { semana: "Sem 1", asistio: 3, total: 3 },
+      { semana: "Sem 2", asistio: 2, total: 3 },
+      { semana: "Sem 3", asistio: 2, total: 3 },
+      { semana: "Sem 4", asistio: 1, total: 3 },
+      { semana: "Sem 5", asistio: 1, total: 3 },
+    ],
+  },
+};
+
+// ── Group average grade trend (for comparison line) ──────────────────────────
+
+export const PROMEDIO_GRUPO_SEMANAL = {
+  calc1: [
+    { semana: "Sem 1", promedio: 7.8 },
+    { semana: "Sem 2", promedio: 7.5 },
+    { semana: "Sem 3", promedio: 7.2 },
+    { semana: "Sem 4", promedio: 7.0 },
+    { semana: "Sem 5", promedio: 6.8 },
+  ],
+  fis1: [
+    { semana: "Sem 1", promedio: 7.6 },
+    { semana: "Sem 2", promedio: 7.4 },
+    { semana: "Sem 3", promedio: 7.1 },
+    { semana: "Sem 4", promedio: 6.9 },
+    { semana: "Sem 5", promedio: 6.7 },
+  ],
+  prog1: [
+    { semana: "Sem 1", promedio: 7.9 },
+    { semana: "Sem 2", promedio: 7.6 },
+    { semana: "Sem 3", promedio: 7.3 },
+    { semana: "Sem 4", promedio: 7.0 },
+    { semana: "Sem 5", promedio: 6.9 },
+  ],
+};
+
 // ── Grade trend data for LineChart ───────────────────────────────────────────
 
 export const TENDENCIA_CALIFICACIONES = {
@@ -323,9 +477,38 @@ export const TENDENCIA_CALIFICACIONES = {
     { semana: "Sem 4", calificacion: 5.2 },
     { semana: "Sem 5", calificacion: 4.5 },
   ],
+  "2021630055": [
+    { semana: "Sem 1", calificacion: 7.2 },
+    { semana: "Sem 2", calificacion: 6.8 },
+    { semana: "Sem 3", calificacion: 6.2 },
+    { semana: "Sem 4", calificacion: 5.6 },
+    { semana: "Sem 5", calificacion: 5.1 },
+  ],
+  "2021630200": [
+    { semana: "Sem 1", calificacion: 7.8 },
+    { semana: "Sem 2", calificacion: 7.0 },
+    { semana: "Sem 3", calificacion: 6.2 },
+    { semana: "Sem 4", calificacion: 5.5 },
+    { semana: "Sem 5", calificacion: 5.0 },
+  ],
 };
 
 // ── Helper functions ─────────────────────────────────────────────────────────
+
+const DEFAULT_TAREAS = [
+  { id: 1, tema: "Unidad 1", nombre: "Tarea 1", calificacion: 7.0, entregada: true },
+  { id: 2, tema: "Unidad 2", nombre: "Tarea 2", calificacion: 6.5, entregada: true },
+  { id: 3, tema: "Unidad 3", nombre: "Tarea 3", calificacion: 6.0, entregada: true },
+  { id: 4, tema: "Unidad 4", nombre: "Tarea 4", calificacion: null, entregada: false },
+];
+
+const DEFAULT_ASISTENCIA = [
+  { semana: "Sem 1", asistio: 3, total: 3 },
+  { semana: "Sem 2", asistio: 2, total: 3 },
+  { semana: "Sem 3", asistio: 2, total: 3 },
+  { semana: "Sem 4", asistio: 2, total: 3 },
+  { semana: "Sem 5", asistio: 2, total: 3 },
+];
 
 /**
  * Returns student data by boleta across all subjects.
@@ -334,6 +517,24 @@ export function getAlumnoByBoleta(boleta) {
   for (const alumnos of Object.values(ALUMNOS_POR_MATERIA)) {
     const alumno = alumnos.find((a) => a.boleta === boleta);
     if (alumno) return alumno;
+  }
+  return null;
+}
+
+/**
+ * Returns student data for a specific subject enrollment.
+ */
+export function getAlumnoEnMateria(boleta, materiaId) {
+  const alumnos = ALUMNOS_POR_MATERIA[materiaId] ?? [];
+  return alumnos.find((a) => a.boleta === boleta) ?? null;
+}
+
+/**
+ * Returns the first subject id where the student is enrolled.
+ */
+export function getMateriaIdByBoleta(boleta) {
+  for (const [materiaId, alumnos] of Object.entries(ALUMNOS_POR_MATERIA)) {
+    if (alumnos.some((a) => a.boleta === boleta)) return materiaId;
   }
   return null;
 }
@@ -369,4 +570,86 @@ export function getTendencia(boleta) {
  */
 export function getFactoresRiesgo(boleta) {
   return FACTORES_RIESGO[boleta] ?? [];
+}
+
+/**
+ * Returns per-task grades for a student in a subject.
+ */
+export function getCalificacionesPorTarea(boleta, materiaId) {
+  const resolvedMateriaId = materiaId ?? getMateriaIdByBoleta(boleta);
+  return CALIFICACIONES_POR_TAREA[boleta]?.[resolvedMateriaId] ?? DEFAULT_TAREAS;
+}
+
+/**
+ * Returns weekly attendance for a student in a subject.
+ */
+export function getAsistenciaSemanal(boleta, materiaId) {
+  const resolvedMateriaId = materiaId ?? getMateriaIdByBoleta(boleta);
+  return ASISTENCIA_SEMANAL[boleta]?.[resolvedMateriaId] ?? DEFAULT_ASISTENCIA;
+}
+
+/**
+ * Returns group average grade trend for a subject.
+ */
+export function getPromedioGrupoSemanal(materiaId) {
+  return PROMEDIO_GRUPO_SEMANAL[materiaId] ?? PROMEDIO_GRUPO_SEMANAL.calc1;
+}
+
+/**
+ * Aggregates task grades by topic for radar chart (0 if no delivered tasks).
+ */
+export function getDominioPorTema(boleta, materiaId) {
+  const tareas = getCalificacionesPorTarea(boleta, materiaId);
+  const porTema = {};
+
+  for (const tarea of tareas) {
+    if (!porTema[tarea.tema]) {
+      porTema[tarea.tema] = { suma: 0, count: 0 };
+    }
+    if (tarea.entregada && tarea.calificacion != null) {
+      porTema[tarea.tema].suma += tarea.calificacion;
+      porTema[tarea.tema].count += 1;
+    }
+  }
+
+  return Object.entries(porTema).map(([tema, { suma, count }]) => ({
+    tema,
+    promedio: count > 0 ? Math.round((suma / count) * 10) / 10 : 0,
+  }));
+}
+
+/**
+ * Counts delivery status for donut chart.
+ */
+export function getEstadoEntregas(boleta, materiaId) {
+  const tareas = getCalificacionesPorTarea(boleta, materiaId);
+  let aprobadas = 0;
+  let reprobadas = 0;
+  let noEntregadas = 0;
+
+  for (const tarea of tareas) {
+    if (!tarea.entregada) {
+      noEntregadas += 1;
+    } else if (tarea.calificacion >= 6) {
+      aprobadas += 1;
+    } else {
+      reprobadas += 1;
+    }
+  }
+
+  return { aprobadas, reprobadas, noEntregadas, total: tareas.length };
+}
+
+/**
+ * Merges student trend with group average for comparison line chart.
+ */
+export function getTendenciaConGrupo(boleta, materiaId) {
+  const alumnoTrend = getTendencia(boleta);
+  const grupoTrend = getPromedioGrupoSemanal(materiaId);
+
+  return alumnoTrend.map((point, index) => ({
+    semana: point.semana,
+    calificacion: point.calificacion,
+    promedioGrupo: grupoTrend[index]?.promedio ?? null,
+  }));
 }
