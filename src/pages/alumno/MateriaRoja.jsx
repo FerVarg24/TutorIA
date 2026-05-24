@@ -5,11 +5,14 @@ import {
   getMateriaAlumnoById,
   getAlumnoEnMateria,
   getFactoresRiesgo,
+  getDominioPorTema,
+  MATERIAL_POR_MATERIA,
 } from '../../services/mockData.js';
 import TypewriterText from '../../components/TypewriterText.jsx';
 import Dashboard from '../../components/Dashboard.jsx';
 import Navbar from '../../components/Navbar.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
+import SelectorGuiaEstudio from '../../components/SelectorGuiaEstudio.jsx';
 
 export default function MateriaRoja() {
   const { id } = useParams();
@@ -17,9 +20,15 @@ export default function MateriaRoja() {
   const navigate = useNavigate();
 
   const [mensajeCompleto, setMensajeCompleto] = useState(false);
+  const [showSelectorGuia, setShowSelectorGuia] = useState(false);
 
   const materia = getMateriaAlumnoById(id);
   const alumno = getAlumnoEnMateria(session?.boleta, id);
+
+  const temasDificiles = getDominioPorTema(alumno?.boleta, id)
+    .filter((t) => t.promedio < 6)
+    .map((t) => t.tema)
+    .join(', ') || 'temas del parcial actual';
 
   useEffect(() => {
     setMascota({ modo: 'hablando', mensaje: '' });
@@ -98,7 +107,11 @@ export default function MateriaRoja() {
             <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
               Recursos de apoyo preparados para ti
             </h3>
-            <BotonPrimario variant="primary" className="w-full justify-center">
+            <BotonPrimario
+              variant="primary"
+              className="w-full justify-center"
+              onClick={() => setShowSelectorGuia(true)}
+            >
               Ver guía de estudio
             </BotonPrimario>
             <BotonPrimario variant="ghost" className="w-full justify-center">
@@ -110,6 +123,16 @@ export default function MateriaRoja() {
           </div>
         </div>
       </div>
+
+      {showSelectorGuia && (
+        <SelectorGuiaEstudio
+          materia={materia.nombre}
+          materiaId={id}
+          temasDificiles={temasDificiles}
+          material={MATERIAL_POR_MATERIA[id] ?? ''}
+          onClose={() => setShowSelectorGuia(false)}
+        />
+      )}
     </div>
   );
 }
