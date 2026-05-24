@@ -61,7 +61,7 @@ export default function LoginAlumno() {
         <p className="font-display text-on-dark-muted text-xs uppercase tracking-widest mb-md text-center">
           TutorIA
         </p>
-        <h1 className="font-display text-on-primary text-2xl text-center mb-xl">
+        <h1 className="font-display text-ink-deep text-2xl text-center mb-xl">
           Acceso Alumno
         </h1>
 
@@ -83,7 +83,7 @@ export default function LoginAlumno() {
               value={boleta}
               onChange={(e) => setBoleta(e.target.value)}
               placeholder="2021630001"
-              className="bg-ink-deep border border-hairline-violet rounded-md px-lg py-md text-on-primary font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-accent-violet transition-colors"
+              className="bg-surface-canvas-dark border border-hairline-cool rounded-md px-lg py-md text-ink-deep font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
@@ -102,7 +102,7 @@ export default function LoginAlumno() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="bg-ink-deep border border-hairline-violet rounded-md px-lg py-md text-on-primary font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-accent-violet transition-colors"
+              className="bg-surface-canvas-dark border border-hairline-cool rounded-md px-lg py-md text-ink-deep font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
@@ -113,7 +113,7 @@ export default function LoginAlumno() {
               className="font-ui text-on-dark-muted text-sm"
             >
               Verificación: ¿Cuánto es{' '}
-              <span className="text-accent-lime font-bold">
+              <span className="text-primary font-bold">
                 {a} + {b}
               </span>
               ?
@@ -126,7 +126,7 @@ export default function LoginAlumno() {
               value={captchaRespuesta}
               onChange={(e) => setCaptchaRespuesta(e.target.value)}
               placeholder="Tu respuesta"
-              className="bg-ink-deep border border-hairline-violet rounded-md px-lg py-md text-on-primary font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-accent-violet transition-colors"
+              className="bg-surface-canvas-dark border border-hairline-cool rounded-md px-lg py-md text-ink-deep font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-primary transition-colors"
             />
           </div>
 
@@ -147,7 +147,7 @@ export default function LoginAlumno() {
         </form>
 
         {/* Demo hint */}
-        <p className="font-ui text-on-dark-faint text-xs text-center mt-xl">
+        <p className="font-ui text-on-dark-muted text-xs text-center mt-xl">
           Demo: boleta 2021630001 / demo1234
         </p>
       </div>
@@ -156,7 +156,7 @@ export default function LoginAlumno() {
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="font-ui text-on-dark-muted text-sm mt-xl hover:text-on-primary transition-colors"
+        className="font-ui text-on-dark-muted text-sm mt-xl hover:text-primary transition-colors"
       >
         ← Volver al inicio
       </button>

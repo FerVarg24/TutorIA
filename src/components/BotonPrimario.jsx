@@ -11,7 +11,7 @@
 const VARIANT_CLASSES = {
   primary:  'bg-primary text-on-primary hover:opacity-90',
   inverted: 'bg-on-primary text-ink-deep hover:bg-surface-press-light',
-  ghost:    'bg-on-dark-faint text-on-primary hover:bg-accent-violet',
+  ghost:    'bg-on-dark-faint text-ink-deep hover:bg-accent-violet hover:text-on-primary',
 };
 
 const BASE_CLASSES =

@@ -40,7 +40,7 @@ export default function MateriasProfesor() {
         {/* Header row */}
         <div className="flex items-center justify-between mb-xxl">
           <div>
-            <h1 className="font-display text-3xl font-bold text-on-primary mb-xs">
+            <h1 className="font-display text-3xl font-bold text-ink-deep mb-xs">
               Materias del semestre
             </h1>
             <p className="font-ui text-on-dark-muted">
@@ -79,7 +79,7 @@ export default function MateriasProfesor() {
             >
               {/* Top row: name + risk badge */}
               <div className="flex items-start justify-between gap-md mb-md">
-                <h2 className="font-display text-lg font-semibold text-on-primary group-hover:text-accent-lime transition-colors leading-snug">
+                <h2 className="font-display text-lg font-semibold text-ink-deep group-hover:text-primary transition-colors leading-snug">
                   {materia.nombre}
                 </h2>
                 <span className="shrink-0 bg-riesgo-alto/20 text-riesgo-alto border border-riesgo-alto/30 rounded-full px-sm py-xs text-sm font-bold font-ui whitespace-nowrap">
@@ -89,14 +89,14 @@ export default function MateriasProfesor() {
 
               {/* Meta */}
               <p className="font-ui text-sm text-on-dark-muted mb-sm">
-                Grupo: <span className="text-on-primary font-medium">{materia.grupo}</span>
+                Grupo: <span className="text-ink-deep font-medium">{materia.grupo}</span>
               </p>
               <p className="font-ui text-sm text-on-dark-muted">
                 {materia.alumnos} alumnos inscritos
               </p>
 
               {/* Footer hint */}
-              <p className="mt-lg font-ui text-xs text-accent-violet group-hover:text-accent-lime transition-colors">
+              <p className="mt-lg font-ui text-xs text-accent-violet group-hover:text-primary transition-colors">
                 Ver lista de alumnos →
               </p>
             </button>

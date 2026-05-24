@@ -77,7 +77,7 @@ export default function ChatAgente({ historial = [], onSend, loading = false }) 
       {/* ── Input bar ── */}
       <form
         onSubmit={handleSubmit}
-        className="flex gap-sm p-md border-t border-hairline-violet bg-ink-deep"
+        className="flex gap-sm p-md border-t border-hairline-violet bg-surface-canvas-dark"
       >
         <input
           type="text"
@@ -87,7 +87,7 @@ export default function ChatAgente({ historial = [], onSend, loading = false }) 
           placeholder="Escribe tu mensaje..."
           className="
             flex-1 bg-surface-night border border-hairline-violet rounded-md
-            px-md py-sm font-ui text-sm text-on-primary placeholder:text-on-dark-muted
+            px-md py-sm font-ui text-sm text-ink-deep placeholder:text-on-dark-muted
             focus:outline-none focus:border-accent-violet transition-colors
             disabled:opacity-50 disabled:cursor-not-allowed
           "

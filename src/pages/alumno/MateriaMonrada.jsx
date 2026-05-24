@@ -97,7 +97,7 @@ export default function MateriaMonrada() {
               </span>
             </div>
             <div>
-              <p className="font-display font-semibold text-on-primary">
+              <p className="font-display font-semibold text-ink-deep">
                 {alumno?.nombre ?? session?.nombre ?? 'Estudiante'}
               </p>
               <p className="font-ui text-xs text-on-dark-muted">{materia.nombre}</p>
@@ -133,12 +133,12 @@ export default function MateriaMonrada() {
             <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md overflow-y-auto">
               <div className="flex items-center gap-sm mb-xs">
                 <span className="w-2 h-2 rounded-full bg-accent-lime shrink-0" />
-                <h3 className="font-display text-base font-semibold text-on-primary">
+                <h3 className="font-display text-base font-semibold text-ink-deep">
                   Tu guía de estudio personalizada
                 </h3>
               </div>
               <div className="bg-accent-violet-deep/20 border border-accent-violet/15 rounded-xl p-lg">
-                <pre className="font-ui text-sm text-on-primary leading-relaxed whitespace-pre-wrap">
+                <pre className="font-ui text-sm text-ink-deep leading-relaxed whitespace-pre-wrap">
                   {guia}
                 </pre>
               </div>
@@ -150,7 +150,7 @@ export default function MateriaMonrada() {
                 <span className="text-2xl" role="img" aria-label="chat">💬</span>
               </div>
               <div className="text-center">
-                <p className="font-display font-semibold text-on-primary mb-xs">
+                <p className="font-display font-semibold text-ink-deep mb-xs">
                   Guía personalizada en camino
                 </p>
                 <p className="font-ui text-sm text-on-dark-muted">

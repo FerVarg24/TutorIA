@@ -36,14 +36,14 @@ export default function Reporte({ alumno, onClose }) {
     >
       {/* Header */}
       <div className="sticky top-0 bg-surface-night border-b border-hairline-violet px-xl py-md flex items-center justify-between">
-        <h2 className="font-display text-lg font-semibold text-on-primary">
+        <h2 className="font-display text-lg font-semibold text-ink-deep">
           Reporte de intervención
         </h2>
         <button
           type="button"
           onClick={onClose}
           aria-label="Cerrar reporte"
-          className="text-on-dark-muted hover:text-on-primary border border-hairline-violet rounded-md px-md py-xs font-ui text-sm transition-all hover:border-accent-violet"
+          className="text-on-dark-muted hover:text-primary border border-hairline-violet rounded-md px-md py-xs font-ui text-sm transition-all hover:border-accent-violet"
         >
           ✕
         </button>
@@ -53,7 +53,7 @@ export default function Reporte({ alumno, onClose }) {
       <div className="px-xl py-md border-b border-hairline-violet/50">
         <p className="font-ui text-sm text-on-dark-muted">
           Alumno:{' '}
-          <span className="text-on-primary font-medium">{alumno?.nombre}</span>
+          <span className="text-ink-deep font-medium">{alumno?.nombre}</span>
         </p>
         <p className="font-ui text-xs text-on-dark-muted mt-xxs">{alumno?.boleta}</p>
       </div>
@@ -79,7 +79,7 @@ export default function Reporte({ alumno, onClose }) {
 
         {!loading && reporte && (
           <div className="bg-surface-canvas-dark border border-hairline-violet rounded-xl p-xl">
-            <p className="font-ui text-on-primary text-sm leading-relaxed whitespace-pre-wrap">
+            <p className="font-ui text-ink-deep text-sm leading-relaxed whitespace-pre-wrap">
               {reporte}
             </p>
           </div>

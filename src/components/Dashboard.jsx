@@ -11,8 +11,8 @@ import {
 import { getTendencia, getFactoresRiesgo } from '../services/mockData.js';
 
 // Design-token hex values used as recharts color props (cannot use Tailwind classes inside SVG attrs)
-const COLOR_LIME   = '#c2ef4e'; // accent-lime
-const COLOR_VIOLET = '#6a5fc1'; // accent-violet
+const COLOR_LIME   = '#F59E0B'; // accent-lime (amber)
+const COLOR_VIOLET = '#8B5CF6'; // accent-violet (violet)
 const COLOR_RIESGO = '#e94f4f'; // riesgo-alto
 
 /**
@@ -86,25 +86,25 @@ export default function Dashboard({ alumno, factores = [], showTrend = false }) 
     <div className="flex flex-col gap-xl">
       {/* ── Section 1: Bar chart ── */}
       <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl">
-        <h3 className="font-display text-on-primary font-semibold mb-lg">
+        <h3 className="font-display text-ink-deep font-semibold mb-lg">
           Indicadores académicos
         </h3>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={barData} barCategoryGap="30%" barGap={4}>
             <XAxis
               dataKey="name"
-              tick={{ fill: '#bdb8c0', fontSize: 13, fontFamily: 'Rubik' }}
+              tick={{ fill: '#64748B', fontSize: 13, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: '#bdb8c0', fontSize: 12, fontFamily: 'Rubik' }}
+              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(106,95,193,0.1)' }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(139,92,246,0.1)' }} />
             <Bar dataKey="asistencia" name="Asistencia" fill={COLOR_LIME}  radius={[4, 4, 0, 0]} />
             <Bar dataKey="tareas"     name="Tareas"     fill={COLOR_VIOLET} radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -126,20 +126,20 @@ export default function Dashboard({ alumno, factores = [], showTrend = false }) 
       {/* ── Section 2: Trend line (optional) ── */}
       {showTrend && (
         <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl">
-          <h3 className="font-display text-on-primary font-semibold mb-lg">
+          <h3 className="font-display text-ink-deep font-semibold mb-lg">
             Tendencia de calificación
           </h3>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={trendData}>
               <XAxis
                 dataKey="semana"
-                tick={{ fill: '#bdb8c0', fontSize: 12, fontFamily: 'Rubik' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                domain={[0, 10]}
-                tick={{ fill: '#bdb8c0', fontSize: 12, fontFamily: 'Rubik' }}
+              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              domain={[0, 10]}
+              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
                 axisLine={false}
                 tickLine={false}
               />
@@ -160,7 +160,7 @@ export default function Dashboard({ alumno, factores = [], showTrend = false }) 
       {/* ── Section 3: Risk factor chips ── */}
       {riskFactors.length > 0 && (
         <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl">
-          <h3 className="font-display text-on-primary font-semibold mb-md">
+          <h3 className="font-display text-ink-deep font-semibold mb-md">
             Factores de riesgo detectados
           </h3>
           <div className="flex flex-wrap gap-sm">

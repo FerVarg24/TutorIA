@@ -60,7 +60,7 @@ export default function AlumnosMateria() {
         {/* Header row */}
         <div className="flex items-center justify-between mb-xl">
           <div>
-            <h1 className="font-display text-3xl font-bold text-on-primary mb-xs">
+            <h1 className="font-display text-3xl font-bold text-ink-deep mb-xs">
               {materia?.nombre ?? 'Materia'}
             </h1>
             {materia && (
@@ -92,7 +92,7 @@ export default function AlumnosMateria() {
               <tbody>
                 {alumnos.map((alumno) => {
                   const isAlto = alumno.nivel_riesgo === 'alto';
-                  const textClass = RIESGO_TEXT_CLASS[alumno.nivel_riesgo] ?? 'text-on-primary';
+                  const textClass = RIESGO_TEXT_CLASS[alumno.nivel_riesgo] ?? 'text-ink-deep';
                   const showTooltip = tooltipBoleta === alumno.boleta;
 
                   return (

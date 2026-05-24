@@ -60,7 +60,7 @@ export default function AlumnoDetalle() {
               </span>
             </div>
             <div>
-              <p className="font-display font-semibold text-on-primary">{alumno.nombre}</p>
+              <p className="font-display font-semibold text-ink-deep">{alumno.nombre}</p>
               <p className="font-ui text-xs text-on-dark-muted">Boleta: {alumno.boleta}</p>
             </div>
             <span className="ml-auto bg-riesgo-alto/15 text-riesgo-alto border border-riesgo-alto/30 rounded-xs px-sm py-xs text-xs font-bold font-ui">
@@ -70,7 +70,7 @@ export default function AlumnoDetalle() {
 
           {/* Analysis card */}
           <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex-1 flex flex-col gap-lg">
-            <h2 className="font-display text-lg font-semibold text-on-primary">
+            <h2 className="font-display text-lg font-semibold text-ink-deep">
               Análisis del agente TutorIA
             </h2>
 
@@ -88,7 +88,7 @@ export default function AlumnoDetalle() {
                     text={analisis}
                     speed={25}
                     onComplete={() => setAnalisisCompleto(true)}
-                    className="font-ui text-sm text-on-primary leading-relaxed"
+                    className="font-ui text-sm text-ink-deep leading-relaxed"
                   />
                 </div>
 

@@ -19,12 +19,12 @@ export default function Navbar({ title = '' }) {
     <nav className="bg-surface-night border-b border-hairline-violet px-xl py-md flex items-center justify-between">
       {/* Left — brand + page title */}
       <div className="flex items-center gap-md">
-        <span className="font-display text-xl font-bold text-accent-lime">
+        <span className="font-display text-xl font-bold text-primary">
           TutorIA
         </span>
         {title && (
           <>
-            <span className="text-hairline-violet select-none">/</span>
+            <span className="text-hairline-cool select-none">/</span>
             <span className="font-ui text-on-dark-muted text-sm">{title}</span>
           </>
         )}
@@ -40,7 +40,7 @@ export default function Navbar({ title = '' }) {
         <button
           type="button"
           onClick={handleLogout}
-          className="font-ui font-bold text-sm text-on-dark-muted hover:text-on-primary border border-hairline-violet rounded-md px-md py-xs transition-all hover:border-accent-violet"
+          className="font-ui font-bold text-sm text-on-dark-muted hover:text-primary border border-hairline-violet rounded-md px-md py-xs transition-all hover:border-accent-violet"
           aria-label="Cerrar sesión"
         >
           Cerrar sesión

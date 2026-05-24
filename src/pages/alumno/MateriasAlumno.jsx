@@ -58,7 +58,7 @@ export default function MateriasAlumno() {
       <main className="p-xl">
         {/* Header */}
         <div className="mb-xxl">
-          <h1 className="font-display text-3xl font-bold text-on-primary mb-xs">
+          <h1 className="font-display text-3xl font-bold text-ink-deep mb-xs">
             Hola, {session?.nombre ?? 'estudiante'}
           </h1>
           <p className="font-ui text-on-dark-muted">
@@ -82,7 +82,7 @@ export default function MateriasAlumno() {
               >
                 {/* Top: name + estado badge */}
                 <div className="flex items-start justify-between gap-md mb-md">
-                  <h2 className="font-display text-lg font-semibold text-on-primary leading-snug">
+                  <h2 className="font-display text-lg font-semibold text-ink-deep leading-snug">
                     {materia.nombre}
                   </h2>
                   <span
@@ -94,10 +94,10 @@ export default function MateriasAlumno() {
 
                 {/* Meta */}
                 <p className="font-ui text-sm text-on-dark-muted mb-xs">
-                  Profesor: <span className="text-on-primary font-medium">{materia.profesor}</span>
+                  Profesor: <span className="text-ink-deep font-medium">{materia.profesor}</span>
                 </p>
                 <p className="font-ui text-sm text-on-dark-muted mb-lg">
-                  Créditos: <span className="text-on-primary font-medium">{materia.creditos}</span>
+                  Créditos: <span className="text-ink-deep font-medium">{materia.creditos}</span>
                 </p>
 
                 {/* Tooltip for verde cards */}
@@ -109,7 +109,7 @@ export default function MateriasAlumno() {
 
                 {/* Footer hint */}
                 {materia.estado !== 'verde' && (
-                  <p className="font-ui text-xs text-on-dark-muted group-hover:text-on-primary transition-colors">
+                  <p className="font-ui text-xs text-on-dark-muted group-hover:text-primary transition-colors">
                     {materia.estado === 'rojo' ? 'Ver apoyo de tu profesor →' : 'Hablar con el agente →'}
                   </p>
                 )}

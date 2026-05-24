@@ -26,7 +26,7 @@ export default function LandingPage() {
       </p>
 
       {/* Main headline */}
-      <h1 className="font-display text-on-primary text-center leading-tight mb-lg"
+      <h1 className="font-display text-ink-deep text-center leading-tight mb-lg"
           style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', maxWidth: '720px' }}>
         Detecta el riesgo{' '}
         <span className="bg-accent-lime text-ink-deep px-xs rounded-sm">
@@ -62,7 +62,7 @@ export default function LandingPage() {
       </div>
 
       {/* Hackathon badge */}
-      <p className="font-ui text-on-dark-faint text-xs mt-section text-center">
+      <p className="font-ui text-on-dark-muted text-xs mt-section text-center">
         Hackathon Universitario de Impacto Social con AI · Microsoft México
       </p>
     </div>

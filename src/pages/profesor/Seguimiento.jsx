@@ -27,12 +27,12 @@ export default function Seguimiento({ alumno, onClose }) {
                 <span className="text-xl" aria-hidden="true">📋</span>
               </div>
 
-              <h2 className="font-display text-xl font-bold text-on-primary text-center mb-md">
+              <h2 className="font-display text-xl font-bold text-ink-deep text-center mb-md">
                 Enviar cuestionario diagnóstico
               </h2>
               <p className="font-ui text-on-dark-muted text-center mb-xxl leading-relaxed">
                 ¿Deseas enviarle un cuestionario diagnóstico a{' '}
-                <span className="text-on-primary font-semibold">{alumno?.nombre}</span>?<br />
+                <span className="text-ink-deep font-semibold">{alumno?.nombre}</span>?<br />
                 Recibirá el link directamente en su cuenta de Teams.
               </p>
 
@@ -62,11 +62,11 @@ export default function Seguimiento({ alumno, onClose }) {
                 <span className="text-xl" aria-hidden="true">✅</span>
               </div>
 
-              <h2 className="font-display text-xl font-bold text-on-primary text-center mb-md">
+              <h2 className="font-display text-xl font-bold text-ink-deep text-center mb-md">
                 Cuestionario enviado
               </h2>
               <p className="font-ui text-on-dark-muted text-center mb-xxl leading-relaxed">
-                <span className="text-on-primary font-semibold">{alumno?.nombre}</span>{' '}
+                <span className="text-ink-deep font-semibold">{alumno?.nombre}</span>{' '}
                 recibirá el link por Teams en breve.
               </p>
 

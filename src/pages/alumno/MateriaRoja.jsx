@@ -54,7 +54,7 @@ export default function MateriaRoja() {
               </span>
             </div>
             <div>
-              <p className="font-display font-semibold text-on-primary">{alumno.nombre}</p>
+              <p className="font-display font-semibold text-ink-deep">{alumno.nombre}</p>
               <p className="font-ui text-xs text-on-dark-muted">{materia.nombre}</p>
             </div>
             <span className="ml-auto bg-riesgo-alto/15 text-riesgo-alto border border-riesgo-alto/30 rounded-xs px-sm py-xs text-xs font-bold font-ui">
@@ -64,7 +64,7 @@ export default function MateriaRoja() {
 
           {/* Agent message card */}
           <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex-1 flex flex-col gap-lg">
-            <h2 className="font-display text-lg font-semibold text-on-primary">
+            <h2 className="font-display text-lg font-semibold text-ink-deep">
               Mensaje de TutorIA
             </h2>
 
@@ -73,7 +73,7 @@ export default function MateriaRoja() {
                 text={mensajeAgente}
                 speed={25}
                 onComplete={() => setMensajeCompleto(true)}
-                className="font-ui text-sm text-on-primary leading-relaxed whitespace-pre-line"
+                className="font-ui text-sm text-ink-deep leading-relaxed whitespace-pre-line"
               />
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function MateriaRoja() {
           {/* Resource buttons — revealed once typewriter completes */}
           {mensajeCompleto && (
             <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
-              <h3 className="font-display text-base font-semibold text-on-primary mb-xs">
+              <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
                 Recursos de apoyo preparados para ti
               </h3>
               <BotonPrimario variant="primary" className="w-full justify-center">
