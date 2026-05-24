@@ -66,17 +66,16 @@ export default function MateriaRoja() {
 
   const breadcrumbs = [
     { label: 'Mis Materias', href: '/alumno/materias' },
-    { label: materia.nombre, href: '#' },
   ];
 
   return (
     <>
       <SplitWorkspaceLayout
         variant="rojo"
-        title={materia.nombre}
         breadcrumbs={breadcrumbs}
         header={
           <WorkspaceHeader
+            layout="compact"
             variant="rojo"
             name={alumno.nombre}
             subtitle={materia.nombre}

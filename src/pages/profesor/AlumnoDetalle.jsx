@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext.jsx';
 import {
   getAlumnoEnMateria,
   getFactoresRiesgo,
+  getMateriaAlumnoById,
   getMateriaIdByBoleta,
 } from '../../services/mockData.js';
 import { analizarAlumno } from '../../services/anthropicService.js';
@@ -53,18 +54,21 @@ export default function AlumnoDetalle() {
     );
   }
 
+  const materia = materiaId ? getMateriaAlumnoById(materiaId) : null;
+
   const breadcrumbs = [
     { label: 'Mis Alumnos', href: '/profesor/materias' },
+    ...(materia ? [{ label: materia.nombre, href: '#' }] : []),
   ];
 
   return (
     <>
       <SplitWorkspaceLayout
         variant="profesor"
-        title={alumno.nombre}
         breadcrumbs={breadcrumbs}
         header={
           <WorkspaceHeader
+            layout="compact"
             variant="profesor"
             name={alumno.nombre}
             subtitle={`Boleta: ${alumno.boleta}`}

@@ -103,13 +103,12 @@ export default function MateriaMonrada() {
   return (
     <SplitWorkspaceLayout
       variant="morado"
-      title={materia.nombre}
       breadcrumbs={[
         { label: 'Mis Materias', href: '/alumno/materias' },
-        { label: materia.nombre, href: '#' },
       ]}
       header={
         <WorkspaceHeader
+          layout="compact"
           variant="morado"
           name={alumno?.nombre ?? session?.nombre ?? 'Estudiante'}
           subtitle={materia.nombre}

@@ -37,7 +37,7 @@ export default function SplitWorkspaceLayout({
       </div>
 
       <div className="split-workspace__content flex flex-col flex-1 min-h-0">
-        <Navbar title={title} breadcrumbs={breadcrumbs} />
+        <Navbar title={title} breadcrumbs={breadcrumbs} center={header} />
 
         <div className="relative flex-1 min-h-0 min-w-0 p-xl">
           <div className="grid h-full min-h-0 min-w-0 lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)] gap-xl">
@@ -48,7 +48,6 @@ export default function SplitWorkspaceLayout({
               animate="visible"
               variants={columnVariants}
             >
-              {header}
               {left}
               {leftFooter}
             </motion.div>
