@@ -121,17 +121,28 @@ EMOCIONAL:
  * @param {string} materia - Subject name
  * @param {string} temas - Difficult topics
  * @param {string} material - Course material content
+ * @param {string|null} formato - Optional format: 'audio' | 'mapa' | 'diapositivas'
  * @returns {Promise<string>} Markdown-formatted study guide
  */
-export async function generarGuia(estilo, materia, temas, material) {
+export async function generarGuia(estilo, materia, temas, material, formato = null) {
+  const instruccionesFormato = {
+    audio:
+      'Genera un guion narrado paso a paso, como si fuera un podcast de 3-5 minutos. Usa un tono conversacional y explica los conceptos como si los estuvieras leyendo en voz alta.',
+    mapa:
+      'Genera un mapa conceptual en markdown con jerarquía clara: tema central → ramas principales → subnodos. Usa indentación, viñetas anidadas o notación tipo árbol.',
+    diapositivas:
+      'Genera una presentación de diapositivas numeradas (## Diapositiva 1, ## Diapositiva 2, ...) con bullets concisos en cada slide. Máximo 6-8 diapositivas.',
+  };
+
+  const instruccionFormato = formato ? instruccionesFormato[formato] ?? '' : '';
   const prompt = `Eres un tutor educativo del IPN especializado en ${materia}. El alumno tiene un estilo de aprendizaje predominantemente ${estilo}. Los temas en los que tiene más dificultad son: ${temas}. El material base del profesor cubre: ${material}.
 
-Genera una guía de estudio personalizada de máximo 400 palabras. Usa el estilo de aprendizaje indicado. Incluye solo contenido relevante al material del profesor. Sé motivador y claro. Usa markdown para formatear el contenido.`;
+Genera una guía de estudio personalizada de máximo 400 palabras. Usa el estilo de aprendizaje indicado. Incluye solo contenido relevante al material del profesor. Sé motivador y claro. Usa markdown para formatear el contenido.${instruccionFormato ? `\n\nInstrucción de formato: ${instruccionFormato}` : ''}`;
 
   try {
     return await llamarAPI([{ role: "user", content: prompt }], 800);
   } catch {
-    return fallbackGuia(estilo, materia, temas);
+    return fallbackGuia(estilo, materia, temas, formato);
   }
 }
 
@@ -169,6 +180,167 @@ export async function chatAgente(historial, mensajeNuevo) {
   }
 }
 
+// ── Mapa conceptual ───────────────────────────────────────────────────────────
+
+/** @typedef {{ id: string, label: string, description: string, example: string, question: string, level: number }} MapaNodo */
+/** @typedef {{ source: string, target: string, label: string }} MapaEdge */
+/** @typedef {{ nodes: MapaNodo[], edges: MapaEdge[] }} MapaConceptualData */
+
+const LIMITES_PROFUNDIDAD = {
+  basico: { min: 5, max: 7 },
+  intermedio: { min: 8, max: 12 },
+  detallado: { min: 13, max: 18 },
+};
+
+/**
+ * @param {string} text
+ * @param {'basico' | 'intermedio' | 'detallado'} [profundidad]
+ * @returns {MapaConceptualData}
+ */
+export function parseMapaJSON(text, profundidad = 'basico') {
+  let raw = text.trim();
+  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) raw = fenceMatch[1].trim();
+
+  const parsed = JSON.parse(raw);
+  if (!parsed?.nodes?.length || !Array.isArray(parsed.edges)) {
+    throw new Error('JSON de mapa inválido');
+  }
+
+  const limites = LIMITES_PROFUNDIDAD[profundidad] ?? LIMITES_PROFUNDIDAD.basico;
+  if (parsed.nodes.length > limites.max) {
+    parsed.nodes = parsed.nodes.slice(0, limites.max);
+    const ids = new Set(parsed.nodes.map((n) => n.id));
+    parsed.edges = parsed.edges.filter((e) => ids.has(e.source) && ids.has(e.target));
+  }
+
+  parsed.nodes.forEach((n) => {
+    if (!n.id || !n.label || n.description == null || n.example == null || n.question == null || n.level == null) {
+      throw new Error(`Nodo incompleto: ${n.id ?? 'sin id'}`);
+    }
+  });
+
+  parsed.edges.forEach((e) => {
+    if (!e.source || !e.target || !e.label) {
+      throw new Error('Edge incompleto');
+    }
+  });
+
+  return parsed;
+}
+
+/**
+ * @param {string} materia
+ * @param {string} tema
+ * @param {string} material
+ * @param {'basico' | 'intermedio' | 'detallado'} profundidad
+ * @returns {Promise<MapaConceptualData>}
+ */
+export async function generarMapaConceptual(materia, tema, material, profundidad = 'basico') {
+  const prompt = `Eres TutorIA, un tutor del IPN. Genera un mapa conceptual para un principiante absoluto.
+
+Materia: ${materia}
+Tema a estudiar: ${tema}
+Material de referencia del profesor: ${material}
+Nivel de profundidad: ${profundidad}
+
+REGLAS ESTRICTAS:
+1. Responde ÚNICAMENTE con JSON válido, sin markdown, sin texto antes ni después.
+2. Usa el formato exacto:
+{
+  "nodes": [
+    { "id": "1", "label": "...", "description": "...", "example": "...", "question": "...", "level": 0 }
+  ],
+  "edges": [
+    { "source": "1", "target": "2", "label": "..." }
+  ]
+}
+3. Límites de nodos según profundidad:
+   - basico: 5 a 7 nodos
+   - intermedio: 8 a 12 nodos
+   - detallado: 13 a 18 nodos
+4. Jerarquía obligatoria:
+   - Exactamente 1 nodo con level 0 (tema central, usa el tema "${tema}")
+   - Nodos level 1: conceptos secundarios directamente relacionados
+   - Nodos level 2: detalles o ejemplos específicos (solo si profundidad lo permite)
+5. Cada edge debe tener label en español que explique la relación ("produce", "necesita", "es parte de", "conduce a", "se diferencia de", etc.)
+6. Lenguaje:
+   - basico: palabras cotidianas, sin jerga técnica
+   - intermedio: introduce términos técnicos con breve contexto
+   - detallado: más preciso pero aún comprensible para principiante
+7. Cada nodo debe incluir:
+   - description: máximo 2 oraciones simples
+   - example: situación cotidiana o analogía
+   - question: 1 pregunta corta de comprensión (máximo 15 palabras)
+8. Los ids deben ser strings numéricos secuenciales ("1", "2", "3"...)
+9. No repitas conceptos. No incluyas nodos desconectados.
+10. Enfócate SOLO en "${tema}", no en toda la materia.`;
+
+  try {
+    const text = await llamarAPI([{ role: 'user', content: prompt }], 1200);
+    return parseMapaJSON(text, profundidad);
+  } catch {
+    return fallbackMapaConceptual(tema, profundidad);
+  }
+}
+
+/**
+ * @param {string} materia
+ * @param {string} tema
+ * @param {MapaNodo} nodo
+ * @param {MapaConceptualData} mapaActual
+ * @param {'basico' | 'intermedio' | 'detallado'} profundidad
+ * @returns {Promise<MapaConceptualData>}
+ */
+export async function expandirNodoMapa(materia, tema, nodo, mapaActual, profundidad = 'basico') {
+  const prompt = `Eres TutorIA, un tutor del IPN. Expande un nodo específico de un mapa conceptual existente.
+
+Materia: ${materia}
+Tema general: ${tema}
+Nivel de profundidad: ${profundidad}
+
+Nodo a expandir:
+- id: ${nodo.id}
+- label: ${nodo.label}
+- description: ${nodo.description}
+
+Mapa actual (JSON):
+${JSON.stringify(mapaActual)}
+
+REGLAS ESTRICTAS:
+1. Responde ÚNICAMENTE con JSON válido con este formato:
+{
+  "nodes": [ ...solo nodos NUEVOS... ],
+  "edges": [ ...solo edges NUEVOS (conectando nodos nuevos entre sí o con "${nodo.id}")... ]
+}
+2. Genera entre 2 y 4 nodos nuevos como máximo.
+3. Todos los nodos nuevos deben tener level ${nodo.level + 1}.
+4. Usa ids que NO existan en el mapa actual (continúa la secuencia numérica).
+5. Al menos 1 edge debe conectar un nodo nuevo con "${nodo.id}".
+6. Cada nodo nuevo incluye: label, description, example, question, level.
+7. Cada edge incluye label de relación en español.
+8. No dupliques conceptos ya presentes en el mapa actual.
+9. Lenguaje acorde a profundidad "${profundidad}".
+10. Sin markdown, sin texto extra.`;
+
+  try {
+    const text = await llamarAPI([{ role: 'user', content: prompt }], 800);
+    let raw = text.trim();
+    const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) raw = fenceMatch[1].trim();
+    const parsed = JSON.parse(raw);
+    if (!parsed?.nodes?.length) throw new Error('Expansión vacía');
+    parsed.nodes.forEach((n) => {
+      if (!n.id || !n.label || n.description == null || n.example == null || n.question == null || n.level == null) {
+        throw new Error('Nodo de expansión incompleto');
+      }
+    });
+    return parsed;
+  } catch {
+    return fallbackExpandirNodo(nodo, mapaActual);
+  }
+}
+
 // ── Fallback responses ────────────────────────────────────────────────────────
 
 function fallbackReporte(alumno) {
@@ -185,7 +357,81 @@ function fallbackReporte(alumno) {
 - Servicio de Psicología Estudiantil IPN — sin costo`;
 }
 
-function fallbackGuia(estilo, materia, temas) {
+function fallbackGuia(estilo, materia, temas, formato = null) {
+  if (formato === 'audio') {
+    return `# Resumen de audio — ${materia}
+
+**Duración estimada:** 4 minutos
+
+---
+
+**[Intro — 0:00]**
+Hola. En este resumen vamos a repasar los temas donde necesitas reforzar: ${temas}. Escucha con calma y repite mentalmente cada idea clave.
+
+**[Bloque 1 — 0:45]**
+Empecemos por lo esencial. Cada concepto de ${materia} se conecta con el anterior. Si algo no quedó claro en clase, no te preocupes: vamos paso a paso, como si estuviéramos en una tutoría.
+
+**[Bloque 2 — 2:00]**
+Enfócate en entender el *por qué* antes del *cómo*. Pregúntate: ¿para qué sirve esto? ¿dónde lo he visto antes? Esa pregunta te ayuda a fijar la idea en memoria.
+
+**[Bloque 3 — 3:15]**
+Repasa en voz alta los puntos principales. Explicárselos a alguien — o incluso a ti mismo — es una de las formas más efectivas de aprender.
+
+**[Cierre — 3:45]**
+Recuerda: dedica 20 minutos hoy a uno de estos temas. Mañana, otro. El avance constante es lo que marca la diferencia. ¡Tú puedes!`;
+  }
+
+  if (formato === 'mapa') {
+    return `# Mapa conceptual — ${materia}
+
+\`\`\`
+${materia}
+├── Temas a reforzar
+│   ├── ${temas.split(',').join('\n│   ├── ')}
+│   └── Conexiones con el parcial
+├── Estrategia de estudio
+│   ├── Revisar apuntes de clase
+│   ├── Resolver ejercicios guiados
+│   └── Pedir aclaración al profesor
+└── Próximos pasos
+    ├── 30 min diarios en el tema más difícil
+    └── Formar equipo de estudio (2-3 compañeros)
+\`\`\`
+
+## Conexiones clave
+- Los temas débiles suelen compartir conceptos base — identifica cuál es la raíz común.
+- Repasa primero lo que ya dominas y luego conecta con lo nuevo.`;
+  }
+
+  if (formato === 'diapositivas') {
+    return `# Presentación de diapositivas — ${materia}
+
+## Diapositiva 1 — Introducción
+- Guía personalizada para reforzar ${materia}
+- Enfoque en tus áreas de oportunidad
+
+## Diapositiva 2 — Temas a reforzar
+- ${temas}
+- Prioriza el que tenga menor calificación
+
+## Diapositiva 3 — Conceptos clave
+- Repasa definiciones fundamentales
+- Identifica fórmulas o reglas que debes dominar
+
+## Diapositiva 4 — Estrategia de estudio
+- 30 minutos diarios en el tema más difícil
+- Practica con ejercicios del libro antes del examen
+
+## Diapositiva 5 — Recursos
+- Apuntes de clase y material del profesor
+- Tutoría con el profesor o monitor
+
+## Diapositiva 6 — Próximos pasos
+- Habla con tu profesor para aclarar dudas
+- Revisa las sesiones que faltaste
+- ¡Tú puedes lograrlo!`;
+  }
+
   const estiloDesc = {
     visual: "diagramas y esquemas visuales",
     auditivo: "explicaciones narrativas paso a paso",
@@ -210,7 +456,7 @@ ${temas}
 - Habla con tu profesor en la siguiente clase para aclarar dudas pendientes.
 - Revisa las notas de las sesiones que faltaste.
 
-¡Tú puedes lograrlo! Cada día de esfuerzo cuenta. 💪`;
+¡Tú puedes lograrlo! Cada día de esfuerzo cuenta.`;
 }
 
 function fallbackChat(mensaje, turno) {
@@ -222,4 +468,154 @@ function fallbackChat(mensaje, turno) {
   ];
 
   return respuestas[Math.min(turno, respuestas.length - 1)];
+}
+
+/**
+ * @param {string} tema
+ * @param {'basico' | 'intermedio' | 'detallado'} profundidad
+ * @returns {MapaConceptualData}
+ */
+function fallbackMapaConceptual(tema, profundidad) {
+  const base = {
+    nodes: [
+      {
+        id: '1',
+        label: tema,
+        description: `${tema} es un concepto clave que conecta varias ideas de la materia.`,
+        example: `Piensa en ${tema.toLowerCase()} como una pieza central de un rompecabezas.`,
+        question: `¿Por qué es importante entender ${tema.toLowerCase()}?`,
+        level: 0,
+      },
+      {
+        id: '2',
+        label: 'Definición básica',
+        description: 'Es la idea principal que debes conocer primero.',
+        example: 'Como aprender las reglas antes de jugar un juego nuevo.',
+        question: '¿Puedes explicarlo con tus palabras?',
+        level: 1,
+      },
+      {
+        id: '3',
+        label: 'Aplicación práctica',
+        description: 'Muestra cómo se usa este concepto en problemas reales.',
+        example: 'Resolver un ejercicio paso a paso en clase.',
+        question: '¿Dónde lo usarías en un examen?',
+        level: 1,
+      },
+      {
+        id: '4',
+        label: 'Errores comunes',
+        description: 'Son las confusiones que suelen cometer los principiantes.',
+        example: 'Confundir términos parecidos al estudiar.',
+        question: '¿Qué error te cuesta más evitar?',
+        level: 1,
+      },
+      {
+        id: '5',
+        label: 'Conexión con otros temas',
+        description: 'Relaciona este tema con lo que ya viste en la materia.',
+        example: 'Unir dos capítulos del libro que parecen distintos.',
+        question: '¿Con qué otro tema se relaciona?',
+        level: 1,
+      },
+    ],
+    edges: [
+      { source: '1', target: '2', label: 'se define como' },
+      { source: '1', target: '3', label: 'se aplica en' },
+      { source: '1', target: '4', label: 'requiere evitar' },
+      { source: '1', target: '5', label: 'conecta con' },
+    ],
+  };
+
+  if (profundidad === 'intermedio' || profundidad === 'detallado') {
+    base.nodes.push(
+      {
+        id: '6',
+        label: 'Ejemplo resuelto',
+        description: 'Un caso guiado que muestra el procedimiento completo.',
+        example: 'Seguir un ejemplo del profesor en el pizarrón.',
+        question: '¿Qué paso te resultó más difícil?',
+        level: 2,
+      },
+      {
+        id: '7',
+        label: 'Propiedades clave',
+        description: 'Características que distinguen este concepto de otros.',
+        example: 'Las reglas que hacen único a cada tipo de problema.',
+        question: '¿Cuál propiedad recuerdas mejor?',
+        level: 2,
+      },
+    );
+    base.edges.push(
+      { source: '3', target: '6', label: 'muestra con' },
+      { source: '2', target: '7', label: 'tiene' },
+    );
+  }
+
+  if (profundidad === 'detallado') {
+    base.nodes.push(
+      {
+        id: '8',
+        label: 'Notación',
+        description: 'Símbolos y formas de escribir el concepto correctamente.',
+        example: 'Usar la misma abreviatura que en tus apuntes.',
+        question: '¿Reconoces la notación en un ejercicio?',
+        level: 2,
+      },
+      {
+        id: '9',
+        label: 'Casos especiales',
+        description: 'Situaciones donde el concepto se comporta distinto.',
+        example: 'Cuando el problema tiene condiciones extra.',
+        question: '¿Qué caso especial te confunde más?',
+        level: 2,
+      },
+    );
+    base.edges.push(
+      { source: '2', target: '8', label: 'se expresa con' },
+      { source: '4', target: '9', label: 'incluye' },
+    );
+  }
+
+  return base;
+}
+
+/**
+ * @param {MapaNodo} nodo
+ * @param {MapaConceptualData} mapaActual
+ * @returns {MapaConceptualData}
+ */
+function fallbackExpandirNodo(nodo, mapaActual) {
+  const maxId = mapaActual.nodes.reduce((max, n) => {
+    const num = parseInt(n.id, 10);
+    return Number.isNaN(num) ? max : Math.max(max, num);
+  }, 0);
+
+  const id1 = String(maxId + 1);
+  const id2 = String(maxId + 2);
+
+  return {
+    nodes: [
+      {
+        id: id1,
+        label: `Detalle de ${nodo.label}`,
+        description: `Profundiza en una parte específica de ${nodo.label}.`,
+        example: 'Como desarmar un problema grande en pasos pequeños.',
+        question: '¿Qué parte te quedó más clara?',
+        level: nodo.level + 1,
+      },
+      {
+        id: id2,
+        label: `Ejemplo de ${nodo.label}`,
+        description: `Muestra cómo aparece ${nodo.label} en la práctica.`,
+        example: 'Un ejercicio sencillo que puedes resolver en casa.',
+        question: '¿Podrías resolver uno similar?',
+        level: nodo.level + 1,
+      },
+    ],
+    edges: [
+      { source: nodo.id, target: id1, label: 'se descompone en' },
+      { source: nodo.id, target: id2, label: 'se ilustra con' },
+    ],
+  };
 }
