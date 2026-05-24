@@ -10,6 +10,7 @@ import AlumnoDetalle from './pages/profesor/AlumnoDetalle.jsx';
 import MateriasAlumno from './pages/alumno/MateriasAlumno.jsx';
 import MateriaRoja from './pages/alumno/MateriaRoja.jsx';
 import MateriaMonrada from './pages/alumno/MateriaMonrada.jsx';
+import MapaConceptual from './pages/alumno/MapaConceptual.jsx';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
 
         {/* Phase 5: Alumno flow — protected */}
         <Route path="/alumno/materias" element={<RequireAuth><MateriasAlumno /></RequireAuth>} />
+        <Route path="/alumno/materia/rojo/:id/mapa" element={<RequireAuth><MapaConceptual /></RequireAuth>} />
         <Route path="/alumno/materia/rojo/:id" element={<RequireAuth><MateriaRoja /></RequireAuth>} />
         <Route path="/alumno/materia/morado/:id" element={<RequireAuth><MateriaMonrada /></RequireAuth>} />
 

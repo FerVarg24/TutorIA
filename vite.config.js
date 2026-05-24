@@ -12,7 +12,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api/copilotkit': 'http://localhost:3001',
+      '/api/copilotkit': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
     },
   },
 });
