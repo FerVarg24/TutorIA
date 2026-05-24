@@ -93,23 +93,21 @@ export default function MateriaRoja() {
             showTrend={true}
           />
 
-          {/* Resource buttons — revealed once typewriter completes */}
-          {mensajeCompleto && (
-            <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
-              <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
-                Recursos de apoyo preparados para ti
-              </h3>
-              <BotonPrimario variant="primary" className="w-full justify-center">
-                Ver guía de estudio
-              </BotonPrimario>
-              <BotonPrimario variant="ghost" className="w-full justify-center">
-                Becas IPN disponibles
-              </BotonPrimario>
-              <BotonPrimario variant="ghost" className="w-full justify-center">
-                Psicología estudiantil
-              </BotonPrimario>
-            </div>
-          )}
+          {/* Resource buttons */}
+          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
+            <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
+              Recursos de apoyo preparados para ti
+            </h3>
+            <BotonPrimario variant="primary" className="w-full justify-center">
+              Ver guía de estudio
+            </BotonPrimario>
+            <BotonPrimario variant="ghost" className="w-full justify-center">
+              Becas IPN disponibles
+            </BotonPrimario>
+            <BotonPrimario variant="ghost" className="w-full justify-center">
+              Psicología estudiantil
+            </BotonPrimario>
+          </div>
         </div>
       </div>
     </div>
