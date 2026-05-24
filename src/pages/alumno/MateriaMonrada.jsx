@@ -4,12 +4,16 @@ import { useApp } from '../../context/AppContext.jsx';
 import {
   getMateriaAlumnoById,
   getAlumnoByBoleta,
+  getAlumnoEnMateria,
   MATERIAL_POR_MATERIA,
 } from '../../services/mockData.js';
 import { chatAgente, generarGuia } from '../../services/anthropicService.js';
 import ChatAgente from '../../components/ChatAgente.jsx';
-import Navbar from '../../components/Navbar.jsx';
+import KpiStrip from '../../components/KpiStrip.jsx';
+import SplitWorkspaceLayout from '../../components/SplitWorkspaceLayout.jsx';
+import WorkspaceHeader from '../../components/WorkspaceHeader.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
+import GlassPanel from '../../components/ui/GlassPanel.jsx';
 import { showCuestionarioToast, dismissCuestionarioToast } from '../../utils/cuestionarioToast.js';
 
 export default function MateriaMonrada() {
@@ -19,6 +23,7 @@ export default function MateriaMonrada() {
 
   const materia = getMateriaAlumnoById(id);
   const alumno = getAlumnoByBoleta(session?.boleta);
+  const alumnoMateria = getAlumnoEnMateria(session?.boleta, id);
 
   const [historial, setHistorial] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -93,104 +98,100 @@ export default function MateriaMonrada() {
     );
   }
 
+  const kpiAlumno = alumnoMateria ?? alumno;
+
   return (
-    <div className="min-h-screen lg:h-screen bg-surface-canvas-dark flex flex-col lg:overflow-hidden">
-      <Navbar title={materia.nombre} breadcrumbs={[
+    <SplitWorkspaceLayout
+      variant="morado"
+      title={materia.nombre}
+      breadcrumbs={[
         { label: 'Mis Materias', href: '/alumno/materias' },
         { label: materia.nombre, href: '#' },
-      ]} />
-
-      <div className="flex-1 min-h-0 p-xl">
-        <div className="grid h-full min-h-0 lg:grid-cols-2 gap-xl">
-
-        {/* ── Left column: chat ── */}
-        <div className="flex flex-col gap-xl min-h-0 h-full overflow-hidden">
-          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex items-center gap-lg shrink-0">
-            <div className="w-12 h-12 rounded-full bg-iniciativa-alumno/20 border border-iniciativa-alumno/40 flex items-center justify-center shrink-0">
-              <span className="text-iniciativa-alumno text-lg font-bold font-display">
-                {(alumno?.nombre ?? session?.nombre ?? 'A').charAt(0)}
-              </span>
-            </div>
-            <div>
-              <p className="font-display font-semibold text-ink-deep">
-                {alumno?.nombre ?? session?.nombre ?? 'Estudiante'}
-              </p>
-              <p className="font-ui text-xs text-on-dark-muted">{materia.nombre}</p>
-            </div>
-            <span className="ml-auto bg-iniciativa-alumno/15 text-iniciativa-alumno border border-iniciativa-alumno/30 rounded-xs px-sm py-xs text-xs font-bold font-ui">
-              Chat con TutorIA
-            </span>
-          </div>
-
-          <div className="flex-1 min-h-0">
-            <ChatAgente historial={historial} onSend={handleSend} loading={loading} />
-          </div>
-
-          <BotonPrimario
-            variant="ghost"
-            onClick={() => navigate('/alumno/materias')}
-            className="w-full justify-center shrink-0 transition-all hover:border-accent-violet hover:text-accent-violet"
-          >
-            ← Volver a mis materias
-          </BotonPrimario>
+      ]}
+      header={
+        <WorkspaceHeader
+          variant="morado"
+          name={alumno?.nombre ?? session?.nombre ?? 'Estudiante'}
+          subtitle={materia.nombre}
+          badge="Chat con TutorIA"
+        />
+      }
+      left={
+        <div className="flex-1 min-h-0">
+          <ChatAgente
+            historial={historial}
+            onSend={handleSend}
+            loading={loading}
+            variant="morado"
+          />
         </div>
+      }
+      leftFooter={
+        <BotonPrimario
+          variant="ghost"
+          onClick={() => navigate('/alumno/materias')}
+          className="w-full justify-center shrink-0 transition-all hover:border-accent-violet hover:text-accent-violet"
+        >
+          ← Volver a mis materias
+        </BotonPrimario>
+      }
+      right={
+        <>
+          {kpiAlumno && <KpiStrip alumno={kpiAlumno} variant="morado" />}
 
-        {/* ── Right column: guide or waiting card ── */}
-        <div className="flex flex-col gap-xl min-h-0 h-full overflow-y-auto">
           {guiaLoading ? (
-            <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col items-center gap-lg py-xxl">
-              <div className="w-8 h-8 border-2 border-accent-violet border-t-accent-lime rounded-full animate-spin" />
-              <p className="font-ui text-on-dark-muted text-sm animate-pulse text-center">
+            <GlassPanel variant="morado" className="flex flex-col items-center gap-lg py-xxl">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-violet border-t-accent-lime" />
+              <p className="animate-pulse text-center font-ui text-sm text-on-dark-muted">
                 Generando tu guía de estudio personalizada...
               </p>
-            </div>
+            </GlassPanel>
           ) : guia ? (
-            <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md overflow-y-auto">
-              <div className="flex items-center gap-sm mb-xs">
-                <span className="w-2 h-2 rounded-full bg-accent-lime shrink-0" />
+            <GlassPanel variant="morado" className="flex flex-col gap-md overflow-y-auto">
+              <div className="mb-xs flex items-center gap-sm">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-accent-lime" />
                 <h3 className="font-display text-base font-semibold text-ink-deep">
                   Tu guía de estudio personalizada
                 </h3>
               </div>
-              <div className="bg-accent-violet-deep/20 border border-accent-violet/15 rounded-xl p-lg">
-                <pre className="font-ui text-sm text-ink-deep leading-relaxed whitespace-pre-wrap">
+              <div className="rounded-xl border border-accent-violet/15 bg-gradient-to-br from-accent-violet-deep/20 to-accent-violet/10 p-lg">
+                <pre className="whitespace-pre-wrap font-ui text-sm leading-relaxed text-ink-deep">
                   {guia}
                 </pre>
               </div>
-            </div>
+            </GlassPanel>
           ) : (
-            <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col items-center gap-lg py-xxl">
-              <div className="w-16 h-16 rounded-full bg-iniciativa-alumno/20 border border-iniciativa-alumno/30 flex items-center justify-center">
+            <GlassPanel variant="morado" className="flex flex-col items-center gap-lg py-xxl">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-iniciativa-alumno/30 bg-iniciativa-alumno/20">
                 <span className="text-2xl" role="img" aria-label="chat">💬</span>
               </div>
               <div className="text-center">
-                <p className="font-display font-semibold text-ink-deep mb-xs">
+                <p className="mb-xs font-display font-semibold text-ink-deep">
                   Guía personalizada en camino
                 </p>
                 <p className="font-ui text-sm text-on-dark-muted">
                   Responde las preguntas del agente para generar tu guía personalizada
                 </p>
               </div>
-              <div className="flex gap-sm items-center mt-sm">
+              <div className="mt-sm flex items-center gap-sm">
                 {[1, 2, 3].map((step) => (
                   <div
                     key={step}
-                    className={`w-3 h-3 rounded-full transition-colors ${
+                    className={`h-3 w-3 rounded-full transition-colors ${
                       userTurnCount >= step
                         ? 'bg-iniciativa-alumno'
                         : 'bg-hairline-violet'
                     }`}
                   />
                 ))}
-                <p className="font-ui text-xs text-on-dark-muted ml-xs">
+                <p className="ml-xs font-ui text-xs text-on-dark-muted">
                   {userTurnCount}/3 respuestas
                 </p>
               </div>
-            </div>
+            </GlassPanel>
           )}
-        </div>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

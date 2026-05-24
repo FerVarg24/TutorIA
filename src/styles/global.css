@@ -105,6 +105,15 @@
   .font-code {
     font-family: var(--font-code);
   }
+
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 [data-sileo-viewport] {
@@ -254,4 +263,134 @@
   .split-layout__col {
     overflow-y: auto;
   }
+}
+
+/* Split workspace — ambient depth backgrounds */
+.split-workspace {
+  isolation: isolate;
+  position: relative;
+  background-color: var(--color-surface-canvas-dark);
+}
+
+.split-workspace__ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.split-workspace__noise {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+}
+
+.split-workspace__glow {
+  position: absolute;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 9999px;
+  filter: blur(56px);
+  opacity: 0.28;
+}
+
+.split-workspace__glow--left {
+  left: -6rem;
+  top: 6rem;
+}
+
+.split-workspace__glow--right {
+  right: -5rem;
+  bottom: 4rem;
+}
+
+.split-workspace__glow--center {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18rem;
+  height: 18rem;
+  opacity: 0.18;
+}
+
+.split-workspace--rojo .split-workspace__noise {
+  background-image:
+    radial-gradient(circle at 15% 18%, rgba(233, 79, 79, 0.1), transparent 32%),
+    radial-gradient(circle at 82% 22%, rgba(91, 155, 213, 0.1), transparent 28%),
+    radial-gradient(circle at 48% 88%, rgba(233, 79, 79, 0.06), transparent 30%);
+}
+
+.split-workspace--rojo .split-workspace__glow--left {
+  background: radial-gradient(circle, rgba(233, 79, 79, 0.35), transparent 65%);
+}
+
+.split-workspace--rojo .split-workspace__glow--right {
+  background: radial-gradient(circle, rgba(91, 155, 213, 0.28), transparent 65%);
+}
+
+.split-workspace--morado .split-workspace__noise {
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(155, 79, 233, 0.12), transparent 30%),
+    radial-gradient(circle at 78% 28%, rgba(201, 184, 240, 0.14), transparent 26%),
+    radial-gradient(circle at 52% 85%, rgba(155, 79, 233, 0.07), transparent 28%);
+}
+
+.split-workspace--morado .split-workspace__glow--left {
+  background: radial-gradient(circle, rgba(155, 79, 233, 0.32), transparent 65%);
+}
+
+.split-workspace--morado .split-workspace__glow--right {
+  background: radial-gradient(circle, rgba(201, 184, 240, 0.35), transparent 65%);
+}
+
+.split-workspace--profesor .split-workspace__noise {
+  background-image:
+    radial-gradient(circle at 20% 22%, rgba(91, 155, 213, 0.11), transparent 28%),
+    radial-gradient(circle at 80% 24%, rgba(123, 167, 212, 0.1), transparent 24%),
+    radial-gradient(circle at 50% 86%, rgba(74, 127, 181, 0.07), transparent 28%);
+}
+
+.split-workspace--profesor .split-workspace__glow--left {
+  background: radial-gradient(circle, rgba(91, 155, 213, 0.32), transparent 65%);
+}
+
+.split-workspace--profesor .split-workspace__glow--right {
+  background: radial-gradient(circle, rgba(74, 127, 181, 0.25), transparent 65%);
+}
+
+.split-workspace__content {
+  position: relative;
+  z-index: 10;
+}
+
+@media (max-width: 1023px) {
+  .split-workspace__glow {
+    opacity: 0.14;
+    filter: blur(40px);
+    width: 16rem;
+    height: 16rem;
+  }
+
+  .split-workspace__noise {
+    opacity: 0.65;
+  }
+}
+
+@keyframes workspace-pulse-ring {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+.workspace-avatar-ring {
+  animation: workspace-pulse-ring 2.5s ease-in-out infinite;
+}
+
+@keyframes chat-online-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.chat-online-dot {
+  animation: chat-online-pulse 1.8s ease-in-out infinite;
 }

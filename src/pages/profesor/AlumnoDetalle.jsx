@@ -7,9 +7,11 @@ import {
   getMateriaIdByBoleta,
 } from '../../services/mockData.js';
 import { analizarAlumno } from '../../services/anthropicService.js';
-import TypewriterText from '../../components/TypewriterText.jsx';
+import AgentMessagePanel from '../../components/AgentMessagePanel.jsx';
 import Dashboard from '../../components/Dashboard.jsx';
-import Navbar from '../../components/Navbar.jsx';
+import KpiStrip from '../../components/KpiStrip.jsx';
+import SplitWorkspaceLayout from '../../components/SplitWorkspaceLayout.jsx';
+import WorkspaceHeader from '../../components/WorkspaceHeader.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
 import Seguimiento from './Seguimiento.jsx';
 
@@ -56,66 +58,42 @@ export default function AlumnoDetalle() {
   ];
 
   return (
-    <div className="min-h-screen lg:h-screen bg-surface-canvas-dark flex flex-col lg:overflow-hidden">
-      <Navbar title={alumno.nombre} breadcrumbs={breadcrumbs} />
-
-      <div className="flex-1 min-h-0 p-xl">
-        <div className="grid h-full min-h-0 lg:grid-cols-2 gap-xl">
-
-        {/* ── Left column: mascot analysis ── */}
-        <div className="flex flex-col gap-xl min-h-0 h-full overflow-hidden">
-          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex items-center gap-lg shrink-0">
-            <div className="w-12 h-12 rounded-full bg-riesgo-alto/20 border border-riesgo-alto/40 flex items-center justify-center shrink-0">
-              <span className="text-riesgo-alto text-lg font-bold font-display">
-                {alumno.nombre.charAt(0)}
-              </span>
-            </div>
-            <div>
-              <p className="font-display font-semibold text-ink-deep">{alumno.nombre}</p>
-              <p className="font-ui text-xs text-on-dark-muted">Boleta: {alumno.boleta}</p>
-            </div>
-            <span className="ml-auto bg-riesgo-alto/15 text-riesgo-alto border border-riesgo-alto/30 rounded-xs px-sm py-xs text-xs font-bold font-ui">
-              Riesgo Alto
-            </span>
-          </div>
-
-          {/* Analysis card */}
-          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex-1 min-h-0 flex flex-col gap-lg overflow-hidden">
-            <h2 className="font-display text-lg font-semibold text-ink-deep shrink-0">
-              Análisis del agente TutorIA
-            </h2>
-
-            {loading ? (
-              <div className="flex flex-col items-center gap-lg py-xl flex-1 min-h-0 justify-center">
-                <div className="w-8 h-8 border-2 border-accent-violet border-t-accent-lime rounded-full animate-spin" />
-                <p className="font-ui text-on-dark-muted text-sm animate-pulse">
-                  Analizando datos del alumno...
-                </p>
-              </div>
-            ) : (
-              <div className="flex-1 min-h-0 flex flex-col gap-xl overflow-hidden">
-                <div className="bg-accent-violet-deep/30 border border-accent-violet/20 rounded-xl p-xl flex-1 min-h-0 overflow-y-auto">
-                  <TypewriterText
-                    text={analisis}
-                    speed={25}
-                    onComplete={() => setAnalisisCompleto(true)}
-                    className="font-ui text-sm text-ink-deep leading-relaxed"
-                  />
-                </div>
-
-                {analisisCompleto && (
-                  <BotonPrimario
-                    variant="primary"
-                    className="w-full justify-center shrink-0"
-                    onClick={() => setShowSeguimiento(true)}
-                  >
-                    Dar seguimiento a este alumno
-                  </BotonPrimario>
-                )}
-              </div>
+    <>
+      <SplitWorkspaceLayout
+        variant="profesor"
+        title={alumno.nombre}
+        breadcrumbs={breadcrumbs}
+        header={
+          <WorkspaceHeader
+            variant="profesor"
+            name={alumno.nombre}
+            subtitle={`Boleta: ${alumno.boleta}`}
+            badge="Riesgo Alto"
+          />
+        }
+        left={
+          <div className="flex flex-1 min-h-0 flex-col gap-lg overflow-hidden">
+            <AgentMessagePanel
+              variant="profesor"
+              title="Análisis del agente TutorIA"
+              text={loading ? undefined : analisis}
+              loading={loading}
+              loadingMessage="Analizando datos del alumno..."
+              onComplete={() => setAnalisisCompleto(true)}
+              className="flex-1"
+            />
+            {analisisCompleto && !loading && (
+              <BotonPrimario
+                variant="primary"
+                className="w-full justify-center shrink-0"
+                onClick={() => setShowSeguimiento(true)}
+              >
+                Dar seguimiento a este alumno
+              </BotonPrimario>
             )}
           </div>
-
+        }
+        leftFooter={
           <BotonPrimario
             variant="ghost"
             onClick={() => navigate('/profesor/materias')}
@@ -123,27 +101,26 @@ export default function AlumnoDetalle() {
           >
             ← Volver a mis alumnos
           </BotonPrimario>
-        </div>
+        }
+        right={
+          <>
+            <KpiStrip alumno={alumno} variant="profesor" />
+            <Dashboard
+              alumno={alumno}
+              materiaId={materiaId}
+              factores={analisisCompleto ? getFactoresRiesgo(alumno.boleta) : []}
+              showTrend={true}
+            />
+          </>
+        }
+      />
 
-        {/* ── Right column: dashboard ── */}
-        <div className="flex flex-col gap-xl min-h-0 h-full overflow-y-auto">
-          <Dashboard
-            alumno={alumno}
-            materiaId={materiaId}
-            factores={analisisCompleto ? getFactoresRiesgo(alumno.boleta) : []}
-            showTrend={true}
-          />
-        </div>
-        </div>
-      </div>
-
-      {/* Follow-up modal — rendered on top of everything */}
       {showSeguimiento && (
         <Seguimiento
           alumno={alumno}
           onClose={() => setShowSeguimiento(false)}
         />
       )}
-    </div>
+    </>
   );
 }

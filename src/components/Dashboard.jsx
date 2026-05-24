@@ -27,6 +27,7 @@ import {
   getMateriaIdByBoleta,
   getTendenciaConGrupo,
 } from '../services/mockData.js';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card.jsx';
 import {
   ChartContainer,
@@ -50,10 +51,37 @@ function getTaskBarColor(tarea) {
   return COLOR_REPROBADO;
 }
 
-function ChartCard({ title, description, children, className = '' }) {
+const GLASS_TOOLTIP =
+  'border-hairline-violet/80 bg-white/90 backdrop-blur-md shadow-[0_8px_24px_rgba(15,23,42,0.12)]';
+
+const CHART_HEADER_GRADIENT = {
+  radar: 'bg-gradient-to-r from-accent-violet/10 via-transparent to-transparent',
+  entregas: 'bg-gradient-to-r from-exito-surface/80 via-transparent to-transparent',
+  tareas: 'bg-gradient-to-r from-accent-violet/8 via-transparent to-transparent',
+  asistencia: 'bg-gradient-to-r from-accent-lime/20 via-transparent to-transparent',
+  tendencia: 'bg-gradient-to-r from-riesgo-alto/8 via-transparent to-transparent',
+  parcial: 'bg-gradient-to-r from-accent-violet/10 via-transparent to-transparent',
+  riesgo: 'bg-gradient-to-r from-riesgo-alto/10 via-transparent to-transparent',
+};
+
+function ChartCard({
+  title,
+  description,
+  children,
+  className = '',
+  accent = 'radar',
+  featured = false,
+}) {
   return (
-    <Card className={className}>
-      <CardHeader>
+    <Card
+      elevated
+      className={cn(
+        'min-w-0 w-full',
+        featured && 'lg:shadow-[0_12px_40px_rgba(15,23,42,0.1)] lg:ring-1 lg:ring-accent-violet/15',
+        className,
+      )}
+    >
+      <CardHeader className={cn('rounded-t-xl', CHART_HEADER_GRADIENT[accent])}>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
@@ -145,12 +173,14 @@ export default function Dashboard({
   };
 
   return (
-    <div className="flex flex-col gap-xl">
+    <div className="flex min-w-0 w-full flex-col gap-xl">
       {/* Row 1: Radar + Donut */}
-      <div className="grid gap-xl lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid min-w-0 gap-xl lg:grid-cols-[1.4fr_1fr]">
         <ChartCard
           title="Dominio por tema"
           description="Promedio por área temática — identifica en qué unidades falla el alumno"
+          accent="radar"
+          featured
         >
           <ChartContainer config={radarConfig} className="mx-auto aspect-square max-h-[280px]">
             <RadarChart data={dominioPorTema}>
@@ -162,6 +192,7 @@ export default function Dashboard({
               <ChartTooltip
                 content={
                   <ChartTooltipContent
+                    className={GLASS_TOOLTIP}
                     formatter={(value) => [`${value}`, 'Promedio']}
                   />
                 }
@@ -180,12 +211,15 @@ export default function Dashboard({
         <ChartCard
           title="Estado de entregas"
           description={`${estadoEntregas.total} tareas en el parcial`}
+          accent="entregas"
+          featured
         >
           <ChartContainer config={entregasConfig} className="mx-auto aspect-square max-h-[280px]">
             <PieChart>
               <ChartTooltip
                 content={
                   <ChartTooltipContent
+                    className={GLASS_TOOLTIP}
                     nameKey="estado"
                     formatter={(value, name) => {
                       const labels = {
@@ -227,6 +261,7 @@ export default function Dashboard({
       <ChartCard
         title="Calificación por tarea"
         description="Evolución cronológica — verde ≥6, rojo <6, gris = no entregada"
+        accent="tareas"
       >
         <ChartContainer config={tareasConfig} className="aspect-[2/1] max-h-[260px] w-full">
           <BarChart data={tareasChartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -257,6 +292,7 @@ export default function Dashboard({
             <ChartTooltip
               content={
                 <ChartTooltipContent
+                  className={GLASS_TOOLTIP}
                   labelFormatter={(_, payload) => payload?.[0]?.payload?.nombre ?? ''}
                   formatter={(value, _name, item) => {
                     if (!item.payload.entregada) return ['No entregada', 'Estado'];
@@ -289,10 +325,11 @@ export default function Dashboard({
       </ChartCard>
 
       {/* Row 3: Area + Line */}
-      <div className="grid gap-xl lg:grid-cols-2">
+      <div className="grid min-w-0 gap-xl lg:grid-cols-2">
         <ChartCard
           title="Asistencia semanal"
           description="Patrón de inasistencias a lo largo del parcial"
+          accent="asistencia"
         >
           <ChartContainer config={asistenciaConfig} className="aspect-[4/3] max-h-[240px] w-full">
             <AreaChart data={asistenciaSemanal}>
@@ -319,6 +356,7 @@ export default function Dashboard({
               <ChartTooltip
                 content={
                   <ChartTooltipContent
+                    className={GLASS_TOOLTIP}
                     formatter={(value, _name, item) => [
                       `${value}% (${item.payload.asistio}/${item.payload.total} clases)`,
                       'Asistencia',
@@ -341,6 +379,7 @@ export default function Dashboard({
           <ChartCard
             title="Tendencia vs promedio del grupo"
             description="Compara el rendimiento individual con el resto del grupo"
+            accent="tendencia"
           >
             <ChartContainer config={tendenciaConfig} className="aspect-[4/3] max-h-[240px] w-full">
               <LineChart data={tendenciaConGrupo}>
@@ -362,7 +401,7 @@ export default function Dashboard({
                   stroke={COLOR_RIESGO}
                   strokeDasharray="4 4"
                 />
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip content={<ChartTooltipContent className={GLASS_TOOLTIP} />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 <Line
                   type="monotone"
@@ -390,6 +429,7 @@ export default function Dashboard({
       <ChartCard
         title="Parcial anterior vs actual"
         description={`Declive de ${alumno.declive > 0 ? '+' : ''}${alumno.declive} puntos`}
+        accent="parcial"
       >
         <ChartContainer config={parcialConfig} className="aspect-[3/1] max-h-[200px] w-full">
           <BarChart data={parcialChartData} barCategoryGap="35%">
@@ -407,7 +447,7 @@ export default function Dashboard({
               tickLine={false}
             />
             <ReferenceLine y={MIN_APROBATORIO} stroke={COLOR_RIESGO} strokeDasharray="4 4" />
-            <ChartTooltip content={<ChartTooltipContent />} />
+            <ChartTooltip content={<ChartTooltipContent className={GLASS_TOOLTIP} />} />
             <Bar
               dataKey="calificacion"
               fill="var(--color-calificacion)"
@@ -432,8 +472,8 @@ export default function Dashboard({
 
       {/* Row 5: Risk factors */}
       {riskFactors.length > 0 && (
-        <Card>
-          <CardHeader>
+        <Card elevated className="min-w-0 w-full">
+          <CardHeader className={cn('rounded-t-xl', CHART_HEADER_GRADIENT.riesgo)}>
             <CardTitle>Factores de riesgo detectados</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">

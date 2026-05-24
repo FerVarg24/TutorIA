@@ -8,10 +8,13 @@ import {
   getDominioPorTema,
   MATERIAL_POR_MATERIA,
 } from '../../services/mockData.js';
-import TypewriterText from '../../components/TypewriterText.jsx';
+import AgentMessagePanel from '../../components/AgentMessagePanel.jsx';
 import Dashboard from '../../components/Dashboard.jsx';
-import Navbar from '../../components/Navbar.jsx';
+import KpiStrip from '../../components/KpiStrip.jsx';
+import SplitWorkspaceLayout from '../../components/SplitWorkspaceLayout.jsx';
+import WorkspaceHeader from '../../components/WorkspaceHeader.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
+import GlassPanel from '../../components/ui/GlassPanel.jsx';
 import SelectorGuiaEstudio from '../../components/SelectorGuiaEstudio.jsx';
 import { showCuestionarioToast, dismissCuestionarioToast } from '../../utils/cuestionarioToast.js';
 
@@ -67,43 +70,28 @@ export default function MateriaRoja() {
   ];
 
   return (
-    <div className="min-h-screen lg:h-screen bg-surface-canvas-dark flex flex-col lg:overflow-hidden">
-      <Navbar title={materia.nombre} breadcrumbs={breadcrumbs} />
-
-      <div className="flex-1 min-h-0 p-xl">
-        <div className="grid h-full min-h-0 lg:grid-cols-2 gap-xl">
-
-        {/* ── Left column: agent message ── */}
-        <div className="flex flex-col gap-xl min-h-0 h-full overflow-hidden">
-          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex items-center gap-lg shrink-0">
-            <div className="w-12 h-12 rounded-full bg-riesgo-alto/20 border border-riesgo-alto/40 flex items-center justify-center shrink-0">
-              <span className="text-riesgo-alto text-lg font-bold font-display">
-                {alumno.nombre.charAt(0)}
-              </span>
-            </div>
-            <div>
-              <p className="font-display font-semibold text-ink-deep">{alumno.nombre}</p>
-              <p className="font-ui text-xs text-on-dark-muted">{materia.nombre}</p>
-            </div>
-            <span className="ml-auto bg-riesgo-alto/15 text-riesgo-alto border border-riesgo-alto/30 rounded-xs px-sm py-xs text-xs font-bold font-ui">
-              Apoyo del Profesor
-            </span>
-          </div>
-
-          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex-1 min-h-0 flex flex-col gap-lg overflow-hidden">
-            <h2 className="font-display text-lg font-semibold text-ink-deep shrink-0">
-              Mensaje de TutorIA
-            </h2>
-
-            <div className="bg-accent-violet-deep/30 border border-accent-violet/20 rounded-xl p-xl flex-1 min-h-0 overflow-y-auto">
-              <TypewriterText
-                text={mensajeAgente}
-                speed={25}
-                className="font-ui text-sm text-ink-deep leading-relaxed whitespace-pre-line"
-              />
-            </div>
-          </div>
-
+    <>
+      <SplitWorkspaceLayout
+        variant="rojo"
+        title={materia.nombre}
+        breadcrumbs={breadcrumbs}
+        header={
+          <WorkspaceHeader
+            variant="rojo"
+            name={alumno.nombre}
+            subtitle={materia.nombre}
+            badge="Apoyo del Profesor"
+          />
+        }
+        left={
+          <AgentMessagePanel
+            variant="rojo"
+            title="Mensaje de TutorIA"
+            text={mensajeAgente}
+            speed={25}
+          />
+        }
+        leftFooter={
           <BotonPrimario
             variant="ghost"
             onClick={() => navigate('/alumno/materias')}
@@ -111,40 +99,39 @@ export default function MateriaRoja() {
           >
             ← Volver a mis materias
           </BotonPrimario>
-        </div>
-
-        {/* ── Right column: dashboard + resources ── */}
-        <div className="flex flex-col gap-xl min-h-0 h-full overflow-y-auto">
-          <Dashboard
-            alumno={alumno}
-            materiaId={id}
-            factores={getFactoresRiesgo(alumno.boleta)}
-            showTrend={true}
-          />
-
-          {quizRespondido && (
-            <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
-              <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
-                Recursos de apoyo preparados para ti
-              </h3>
-              <BotonPrimario
-                variant="primary"
-                className="w-full justify-center"
-                onClick={() => setShowSelectorGuia(true)}
-              >
-                Ver guía de estudio
-              </BotonPrimario>
-              <BotonPrimario variant="ghost" className="w-full justify-center">
-                Becas IPN disponibles
-              </BotonPrimario>
-              <BotonPrimario variant="ghost" className="w-full justify-center">
-                Psicología estudiantil
-              </BotonPrimario>
-            </div>
-          )}
-        </div>
-        </div>
-      </div>
+        }
+        right={
+          <>
+            <KpiStrip alumno={alumno} variant="rojo" />
+            <Dashboard
+              alumno={alumno}
+              materiaId={id}
+              factores={getFactoresRiesgo(alumno.boleta)}
+              showTrend={true}
+            />
+            {quizRespondido && (
+              <GlassPanel variant="rojo" className="flex flex-col gap-md">
+                <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
+                  Recursos de apoyo preparados para ti
+                </h3>
+                <BotonPrimario
+                  variant="primary"
+                  className="w-full justify-center"
+                  onClick={() => setShowSelectorGuia(true)}
+                >
+                  Ver guía de estudio
+                </BotonPrimario>
+                <BotonPrimario variant="ghost" className="w-full justify-center">
+                  Becas IPN disponibles
+                </BotonPrimario>
+                <BotonPrimario variant="ghost" className="w-full justify-center">
+                  Psicología estudiantil
+                </BotonPrimario>
+              </GlassPanel>
+            )}
+          </>
+        }
+      />
 
       {showSelectorGuia && (
         <SelectorGuiaEstudio
@@ -155,6 +142,6 @@ export default function MateriaRoja() {
           onClose={() => setShowSelectorGuia(false)}
         />
       )}
-    </div>
+    </>
   );
 }

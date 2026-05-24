@@ -1,18 +1,47 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bot, Send } from 'lucide-react';
 import BotonPrimario from './BotonPrimario.jsx';
+import GlassPanel from './ui/GlassPanel.jsx';
+import { cn } from '@/lib/utils';
+
+const messageVariants = {
+  hidden: (isUser) => ({
+    opacity: 0,
+    x: isUser ? 12 : -12,
+    scale: 0.97,
+  }),
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+function TutorAvatar() {
+  return (
+    <div
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent-violet-deep to-accent-violet text-on-primary shadow-sm"
+      aria-hidden="true"
+    >
+      <Bot className="h-4 w-4" />
+    </div>
+  );
+}
 
 /**
  * Multi-turn chat interface for the student agent flow.
- * Props:
- *   historial — [{ id, role: 'user'|'assistant', content }]
- *   onSend    — (mensaje: string) => void  called when user submits a message
- *   loading   — disables input while the agent is responding
  */
-export default function ChatAgente({ historial = [], onSend, loading = false }) {
+export default function ChatAgente({
+  historial = [],
+  onSend,
+  loading = false,
+  variant = 'morado',
+}) {
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
 
-  // Auto-scroll to the latest message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [historial, loading]);
@@ -26,58 +55,79 @@ export default function ChatAgente({ historial = [], onSend, loading = false }) 
   }
 
   return (
-    <div className="flex flex-col h-full bg-surface-night border border-hairline-violet rounded-xl overflow-hidden">
-      {/* ── Message list ── */}
-      <div className="flex-1 overflow-y-auto p-lg flex flex-col gap-md">
+    <GlassPanel variant={variant} padding="none" className="flex h-full flex-col overflow-hidden">
+      <div className="flex shrink-0 items-center gap-md border-b border-hairline-violet/60 px-lg py-md">
+        <TutorAvatar />
+        <div>
+          <p className="font-ui text-[10px] font-semibold uppercase tracking-wider text-accent-violet-deep">
+            TutorIA
+          </p>
+          <p className="font-display text-sm font-semibold text-ink-deep">Asistente de apoyo</p>
+        </div>
+        <span className="ml-auto flex items-center gap-xs font-ui text-xs text-on-dark-muted">
+          <span className="chat-online-dot h-2 w-2 rounded-full bg-exito-text" aria-hidden="true" />
+          En línea
+        </span>
+      </div>
+
+      <div className="scrollbar-hidden flex flex-1 flex-col gap-md overflow-y-auto p-lg">
         {historial.length === 0 && (
-          <p className="text-on-dark-muted font-ui text-sm text-center mt-xl">
+          <p className="mt-xl text-center font-ui text-sm text-on-dark-muted">
             El agente está listo para ayudarte.
           </p>
         )}
 
-        {historial.map((msg) => {
-          const isUser = msg.role === 'user';
-          return (
-            <div
-              key={msg.id}
-              className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`
-                  max-w-[20rem] lg:max-w-[24rem] xl:max-w-[28rem]
-                  px-lg py-md rounded-xl font-ui text-sm leading-relaxed
-                  ${isUser
-                    ? 'bg-accent-violet text-on-primary rounded-br-xs'
-                    : 'bg-accent-violet-deep text-on-primary rounded-bl-xs border border-hairline-violet'
-                  }
-                `}
+        <AnimatePresence initial={false}>
+          {historial.map((msg) => {
+            const isUser = msg.role === 'user';
+            return (
+              <motion.div
+                key={msg.id}
+                custom={isUser}
+                variants={messageVariants}
+                initial="hidden"
+                animate="visible"
+                className={cn('flex gap-sm', isUser ? 'justify-end' : 'justify-start')}
               >
-                {msg.content}
-              </div>
-            </div>
-          );
-        })}
+                {!isUser && <TutorAvatar />}
+                <div
+                  className={cn(
+                    'max-w-[20rem] rounded-xl px-lg py-md font-ui text-sm leading-relaxed lg:max-w-[24rem] xl:max-w-[28rem]',
+                    isUser
+                      ? 'rounded-br-xs bg-accent-violet text-on-primary shadow-[0_4px_16px_rgba(91,155,213,0.25)]'
+                      : 'rounded-bl-xs border border-accent-violet/25 bg-gradient-to-br from-accent-violet-deep to-accent-violet text-on-primary shadow-[0_4px_16px_rgba(74,127,181,0.2)]',
+                  )}
+                >
+                  {msg.content}
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
 
-        {/* Typing indicator */}
         {loading && (
-          <div className="flex justify-start">
-            <div className="bg-accent-violet-deep border border-hairline-violet rounded-xl rounded-bl-xs px-lg py-md">
-              <span className="flex gap-xs items-center">
-                <span className="w-2 h-2 bg-on-dark-muted rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-2 h-2 bg-on-dark-muted rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-2 h-2 bg-on-dark-muted rounded-full animate-bounce [animation-delay:300ms]" />
+          <motion.div
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex justify-start gap-sm"
+          >
+            <TutorAvatar />
+            <div className="rounded-xl rounded-bl-xs border border-accent-violet/25 bg-gradient-to-br from-accent-violet-deep/90 to-accent-violet/90 px-lg py-md">
+              <span className="flex items-center gap-xs">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-on-primary/70 [animation-delay:0ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-on-primary/70 [animation-delay:150ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-on-primary/70 [animation-delay:300ms]" />
               </span>
             </div>
-          </div>
+          </motion.div>
         )}
 
         <div ref={bottomRef} />
       </div>
 
-      {/* ── Input bar ── */}
       <form
         onSubmit={handleSubmit}
-        className="flex gap-sm p-md border-t border-hairline-violet bg-surface-canvas-dark"
+        className="flex gap-sm border-t border-hairline-violet/60 bg-white/50 p-md backdrop-blur-sm transition-shadow focus-within:shadow-[0_0_20px_rgba(91,155,213,0.15)] focus-within:ring-2 focus-within:ring-accent-violet/30"
       >
         <input
           type="text"
@@ -85,12 +135,7 @@ export default function ChatAgente({ historial = [], onSend, loading = false }) 
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
           placeholder="Escribe tu mensaje..."
-          className="
-            flex-1 bg-surface-night border border-hairline-violet rounded-md
-            px-md py-sm font-ui text-sm text-ink-deep placeholder:text-on-dark-muted
-            focus:outline-none focus:border-accent-violet transition-colors
-            disabled:opacity-50 disabled:cursor-not-allowed
-          "
+          className="flex-1 rounded-md border border-hairline-violet bg-white/80 px-md py-sm font-ui text-sm text-ink-deep placeholder:text-on-dark-muted transition-colors focus:border-accent-violet focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           aria-label="Mensaje al agente"
         />
         <BotonPrimario
@@ -98,10 +143,12 @@ export default function ChatAgente({ historial = [], onSend, loading = false }) 
           variant="primary"
           disabled={loading || !input.trim()}
           aria-label="Enviar mensaje"
+          className="gap-xs"
         >
+          <Send className="h-4 w-4" aria-hidden="true" />
           Enviar
         </BotonPrimario>
       </form>
-    </div>
+    </GlassPanel>
   );
 }
