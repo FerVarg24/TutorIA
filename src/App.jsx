@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext.jsx';
-import Mascota from './components/Mascota.jsx';
 import RequireAuth from './components/RequireAuth.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import LoginProfesor from './pages/LoginProfesor.jsx';
@@ -15,9 +14,6 @@ import MateriaMonrada from './pages/alumno/MateriaMonrada.jsx';
 export default function App() {
   return (
     <AppProvider>
-      {/* Mascota persists across all routes — rendered outside <Routes> */}
-      <Mascota />
-
       <Routes>
         {/* Phase 3: Public pages — no auth required */}
         <Route path="/" element={<LandingPage />} />
