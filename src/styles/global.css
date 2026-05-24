@@ -180,45 +180,58 @@
 }
 
 /* Landing page */
-.landing-gradient {
-  background: linear-gradient(
-    135deg,
-    #ffffff,
-    #f5f8ff,
-    #eaf1fb
-  );
-  background-size: 400% 400%;
-  animation: landing-gradient 12s ease infinite;
+.landing-page {
+  isolation: isolate;
 }
 
-.landing-shapes::before,
-.landing-shapes::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.08;
-  background: var(--color-primary);
+.landing-page__noise {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(79, 70, 229, 0.08), transparent 28%),
+    radial-gradient(circle at 80% 25%, rgba(14, 165, 233, 0.08), transparent 24%),
+    radial-gradient(circle at 50% 85%, rgba(236, 72, 153, 0.06), transparent 28%);
 }
 
-.landing-shapes::before {
-  width: 300px;
-  height: 300px;
-  top: 10%;
-  left: 5%;
-  animation: mascota-flotando 8s ease-in-out infinite;
+.landing-page__glow {
+  width: 26rem;
+  height: 26rem;
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: 0.22;
 }
 
-.landing-shapes::after {
-  width: 200px;
-  height: 200px;
-  bottom: 15%;
-  right: 10%;
-  animation: mascota-flotando 6s ease-in-out infinite reverse;
+.landing-page__glow--left {
+  left: -8rem;
+  top: 4rem;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.35), transparent 65%);
 }
 
-@keyframes landing-gradient {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+.landing-page__glow--right {
+  right: -6rem;
+  bottom: 3rem;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.25), transparent 65%);
+}
+
+.landing-page__sphere-shell {
+  min-height: min(56vh, 38rem);
+}
+
+.landing-page__sphere-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+  opacity: 0.72;
+}
+
+.landing-sphere {
+  width: min(80vw, 40rem);
+  aspect-ratio: 1 / 1;
+}
+
+.landing-sphere canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Split-layout pages: prevent body scroll on lg+ screens */

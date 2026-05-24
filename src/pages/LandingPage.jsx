@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
 import BotonPrimario from '../components/BotonPrimario.jsx';
+import LandingSphere from '../components/LandingSphere.jsx';
 
 export default function LandingPage() {
   const { setMascota } = useApp();
@@ -13,58 +14,48 @@ export default function LandingPage() {
   }, [setMascota]);
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="landing-gradient absolute inset-0 -z-10" />
+    <div className="landing-page relative min-h-screen overflow-hidden bg-white text-ink-deep">
+      <div className="landing-page__noise absolute inset-0 -z-10" />
+      <div className="landing-page__glow landing-page__glow--left absolute -z-10" />
+      <div className="landing-page__glow landing-page__glow--right absolute -z-10" />
 
-      {/* Floating geometric shapes */}
-      <div className="landing-shapes absolute inset-0 -z-10" />
+      <div className="landing-page__sphere-wrap absolute inset-0 -z-20 flex items-center justify-center pointer-events-none" aria-hidden="true">
+        <LandingSphere />
+      </div>
 
-      {/* Logo / project name */}
-      <p className="font-display text-on-dark-muted text-sm uppercase tracking-widest mb-xl">
-        TutorIA — IPN
-      </p>
+      <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-lg py-section text-center">
+        <p className="font-display text-xs uppercase tracking-[0.35em] text-on-dark-muted">
+          TutorIA · IPN
+        </p>
 
-      {/* Main headline */}
-      <h1 className="font-display text-ink-deep text-center leading-tight mb-lg"
-          style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', maxWidth: '720px' }}>
-        Detecta el riesgo{' '}
-        <span className="bg-accent-lime text-ink-deep px-xs rounded-sm">
-          antes
-        </span>{' '}
-        de que sea tarde
-      </h1>
+        <h1 className="mt-xl font-display leading-tight text-ink-deep" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', maxWidth: '760px' }}>
+          Detecta el riesgo antes de que sea tarde.
+        </h1>
 
-      {/* Subtitle */}
-      <p className="font-ui text-on-dark-muted text-center mb-xxl"
-         style={{ fontSize: '1.125rem', maxWidth: '480px' }}>
-        Intervención temprana basada en IA para apoyar a los estudiantes del IPN
-        antes de que termine el parcial.
-      </p>
+        <p className="mt-lg max-w-2xl font-ui text-base text-on-dark-muted md:text-lg">
+          Intervención temprana basada en IA para apoyar a los estudiantes del IPN con una lectura visual clara, moderna y centrada en la esfera animada.
+        </p>
 
-      {/* CTA buttons */}
-      <div className="flex gap-lg flex-wrap justify-center">
+        <div className="mt-xxl flex flex-wrap justify-center gap-md md:gap-lg">
         <BotonPrimario
-          variant="inverted"
-          className="px-xxl py-lg text-base"
+          variant="primary"
+          className="px-xxl py-lg text-sm shadow-[0_18px_40px_rgba(79,70,229,0.18)] md:text-base"
           onClick={() => navigate('/login/profesor')}
         >
           Soy Profesor
         </BotonPrimario>
 
         <BotonPrimario
-          variant="ghost"
-          className="px-xxl py-lg text-base"
+          variant="inverted"
+          className="px-xxl py-lg text-sm shadow-[0_18px_40px_rgba(15,23,42,0.08)] md:text-base"
           onClick={() => navigate('/login/alumno')}
         >
           Soy Alumno
         </BotonPrimario>
-      </div>
 
-      {/* Hackathon badge */}
-      <p className="font-ui text-on-dark-muted text-xs mt-section text-center">
-        Hackathon Universitario de Impacto Social con AI · Microsoft México
-      </p>
+        </div>
+
+      </main>
     </div>
   );
 }
