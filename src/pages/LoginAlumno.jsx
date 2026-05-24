@@ -1,13 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext.jsx';
 import BotonPrimario from '../components/BotonPrimario.jsx';
 import { USUARIOS_ALUMNO } from '../services/mockData.js';
-
-/** Generates a random integer in [min, max] inclusive. */
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 export default function LoginAlumno() {
   const { setMascota, login } = useApp();
@@ -15,18 +10,8 @@ export default function LoginAlumno() {
 
   const [boleta, setBoleta] = useState('');
   const [password, setPassword] = useState('');
-  const [captchaRespuesta, setCaptchaRespuesta] = useState('');
   const [error, setError] = useState('');
 
-  // Generate CAPTCHA once on mount; store operands in a ref to avoid regeneration on re-renders
-  const captchaRef = useRef({
-    a: randomInt(1, 9),
-    b: randomInt(1, 9),
-  });
-  const { a, b } = captchaRef.current;
-  const captchaEsperado = a + b;
-
-  // Trigger mascot bounce on mount
   useEffect(() => {
     setMascota({ modo: 'bounce', mensaje: '' });
   }, [setMascota]);
@@ -35,13 +20,6 @@ export default function LoginAlumno() {
     e.preventDefault();
     setError('');
 
-    // Validate CAPTCHA first
-    if (parseInt(captchaRespuesta, 10) !== captchaEsperado) {
-      setError('Respuesta del captcha incorrecta');
-      return;
-    }
-
-    // Validate credentials
     const user = USUARIOS_ALUMNO.find(
       (u) => u.boleta === boleta.trim() && u.password === password
     );
@@ -57,7 +35,6 @@ export default function LoginAlumno() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-surface-canvas-dark px-lg">
       <div className="w-full max-w-[24rem] bg-surface-night border border-hairline-violet rounded-xl p-xxl">
-        {/* Header */}
         <p className="font-display text-on-dark-muted text-xs uppercase tracking-widest mb-md text-center">
           TutorIA
         </p>
@@ -65,7 +42,6 @@ export default function LoginAlumno() {
           Acceso Alumno
         </h1>
 
-        {/* Login form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-lg" noValidate>
           <div className="flex flex-col gap-sm">
             <label
@@ -106,31 +82,6 @@ export default function LoginAlumno() {
             />
           </div>
 
-          {/* Arithmetic CAPTCHA */}
-          <div className="flex flex-col gap-sm">
-            <label
-              htmlFor="captcha"
-              className="font-ui text-on-dark-muted text-sm"
-            >
-              Verificación: ¿Cuánto es{' '}
-              <span className="text-primary font-bold">
-                {a} + {b}
-              </span>
-              ?
-            </label>
-            <input
-              id="captcha"
-              type="text"
-              inputMode="numeric"
-              required
-              value={captchaRespuesta}
-              onChange={(e) => setCaptchaRespuesta(e.target.value)}
-              placeholder="Tu respuesta"
-              className="bg-surface-canvas-dark border border-hairline-cool rounded-md px-lg py-md text-ink-deep font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-primary transition-colors"
-            />
-          </div>
-
-          {/* Inline error message */}
           {error && (
             <p role="alert" className="font-ui text-riesgo-alto text-sm text-center">
               {error}
@@ -146,13 +97,11 @@ export default function LoginAlumno() {
           </BotonPrimario>
         </form>
 
-        {/* Demo hint */}
         <p className="font-ui text-on-dark-muted text-xs text-center mt-xl">
           Demo: boleta 2021630001 / demo1234
         </p>
       </div>
 
-      {/* Back link */}
       <button
         type="button"
         onClick={() => navigate('/')}

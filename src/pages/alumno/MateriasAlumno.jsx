@@ -93,11 +93,8 @@ export default function MateriasAlumno() {
                 </div>
 
                 {/* Meta */}
-                <p className="font-ui text-sm text-on-dark-muted mb-xs">
-                  Profesor: <span className="text-ink-deep font-medium">{materia.profesor}</span>
-                </p>
                 <p className="font-ui text-sm text-on-dark-muted mb-lg">
-                  Créditos: <span className="text-ink-deep font-medium">{materia.creditos}</span>
+                  Profesor: <span className="text-ink-deep font-medium">{materia.profesor}</span>
                 </p>
 
                 {/* Tooltip for verde cards */}
