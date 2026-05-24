@@ -8,7 +8,7 @@ import {
   getMateriaIdByBoleta,
 } from '../../services/mockData.js';
 import { analizarAlumno } from '../../services/anthropicService.js';
-import AgentMessagePanel from '../../components/AgentMessagePanel.jsx';
+import TutorIA from '../../components/TutorIA.jsx';
 import Dashboard from '../../components/Dashboard.jsx';
 import KpiStrip from '../../components/KpiStrip.jsx';
 import SplitWorkspaceLayout from '../../components/SplitWorkspaceLayout.jsx';
@@ -77,12 +77,12 @@ export default function AlumnoDetalle() {
         }
         left={
           <div className="flex flex-1 min-h-0 flex-col gap-lg overflow-hidden">
-            <AgentMessagePanel
-              variant="profesor"
+            <TutorIA
+              modo="profesor"
+              datosAlumno={alumno}
               title="Análisis del agente TutorIA"
-              text={loading ? undefined : analisis}
-              loading={loading}
-              loadingMessage="Analizando datos del alumno..."
+              variant="profesor"
+              fallbackText={loading ? 'Analizando datos del alumno...' : analisis}
               onComplete={() => setAnalisisCompleto(true)}
               className="flex-1"
             />

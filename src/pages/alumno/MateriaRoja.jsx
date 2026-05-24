@@ -6,9 +6,10 @@ import {
   getAlumnoEnMateria,
   getFactoresRiesgo,
   getDominioPorTema,
+  getResultadoCuestionario,
   MATERIAL_POR_MATERIA,
 } from '../../services/mockData.js';
-import AgentMessagePanel from '../../components/AgentMessagePanel.jsx';
+import TutorIA from '../../components/TutorIA.jsx';
 import Dashboard from '../../components/Dashboard.jsx';
 import KpiStrip from '../../components/KpiStrip.jsx';
 import SplitWorkspaceLayout from '../../components/SplitWorkspaceLayout.jsx';
@@ -34,6 +35,7 @@ export default function MateriaRoja() {
     .filter((t) => t.promedio < 6)
     .map((t) => t.tema)
     .join(', ') || 'temas del parcial actual';
+  const resultadosFormulario = getResultadoCuestionario(alumno?.boleta);
 
   useEffect(() => {
     setMascota({ modo: 'hablando', mensaje: '' });
@@ -53,7 +55,7 @@ export default function MateriaRoja() {
   }, [quizRespondido]);
 
   const mensajeAgente = alumno && materia
-    ? `Hola ${alumno.nombre}, tu profesor notó que has tenido algunas dificultades esta semana en ${materia.nombre}. No te preocupes, estamos aquí para apoyarte.\n\nDetectamos que tu asistencia está en ${alumno.asistencia} y llevas ${alumno.tareas_entregadas} tareas entregadas. Tu calificación ha tenido un cambio de ${alumno.declive} puntos respecto al parcial anterior.\n\nTu profesor ya preparó recursos de apoyo para ti. A continuación puedes ver tus indicadores y las soluciones propuestas.`
+    ? `Hola ${alumno.nombre}, tu profesor detectó algunas señales de riesgo en ${materia.nombre}. Estoy aquí para ayudarte a entender qué está pasando y qué opciones tienes para mejorar.\n\nVeo que tu asistencia va en ${alumno.asistencia} y llevas ${alumno.tareas_entregadas} tareas entregadas. Tu calificación cambió ${alumno.declive} puntos respecto al parcial anterior.\n\nVamos a revisar tus indicadores y los recursos que tu profesor preparó para ti.`
     : '';
 
   if (!alumno || !materia) {
@@ -83,11 +85,13 @@ export default function MateriaRoja() {
           />
         }
         left={
-          <AgentMessagePanel
-            variant="rojo"
+          <TutorIA
+            modo="alumno"
+            datosAlumno={alumno}
+            datosFormulario={resultadosFormulario}
             title="Mensaje de TutorIA"
-            text={mensajeAgente}
-            speed={25}
+            variant="rojo"
+            fallbackText={mensajeAgente}
           />
         }
         leftFooter={
