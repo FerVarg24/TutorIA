@@ -1,5 +1,7 @@
 // Google Gemini API calls for conceptual map generation and expansion.
 
+import { getMapaConceptualDemo, getExpansionMapaDemo } from './mockData.js';
+
 /**
  * @param {string} prompt
  * @param {number} [maxTokens]
@@ -35,7 +37,7 @@ async function llamarAPIGemini(prompt, maxTokens = 1024) {
   return text;
 }
 
-/** @typedef {{ id: string, label: string, description: string, example: string, question: string, level: number }} MapaNodo */
+/** @typedef {{ id: string, label: string, description: string, example: string, question: string, level: number, fuente?: string, citaMaterial?: string, ejercicioReferencia?: string }} MapaNodo */
 /** @typedef {{ source: string, target: string, label: string }} MapaEdge */
 /** @typedef {{ nodes: MapaNodo[], edges: MapaEdge[] }} MapaConceptualData */
 
@@ -83,13 +85,93 @@ export function parseMapaJSON(text, profundidad = 'basico') {
 }
 
 /**
+ * @param {MapaConceptualData} mapa
+ * @param {'basico' | 'intermedio' | 'detallado'} profundidad
+ * @returns {MapaConceptualData}
+ */
+function ajustarProfundidadMapa(mapa, profundidad) {
+  const limites = LIMITES_PROFUNDIDAD[profundidad] ?? LIMITES_PROFUNDIDAD.basico;
+  let nodes = structuredClone(mapa.nodes);
+
+  if (profundidad === 'basico') {
+    nodes = nodes.filter((n) => n.level <= 1);
+  } else if (profundidad === 'intermedio') {
+    nodes = nodes.filter((n) => n.level <= 2);
+  }
+
+  if (nodes.length > limites.max) {
+    nodes = nodes.slice(0, limites.max);
+  }
+
+  const ids = new Set(nodes.map((n) => n.id));
+  const edges = mapa.edges.filter((e) => ids.has(e.source) && ids.has(e.target));
+
+  return { nodes, edges };
+}
+
+/**
+ * @param {string | undefined | null} materiaId
+ * @param {string} tema
+ * @param {'basico' | 'intermedio' | 'detallado'} profundidad
+ * @returns {MapaConceptualData | null}
+ */
+function resolverMapaDemo(materiaId, tema, profundidad) {
+  if (!materiaId) return null;
+  const demo = getMapaConceptualDemo(materiaId, tema);
+  if (!demo) return null;
+  return ajustarProfundidadMapa(structuredClone(demo), profundidad);
+}
+
+/**
+ * @param {string | undefined | null} materiaId
+ * @param {string} tema
+ * @param {MapaNodo} nodo
+ * @param {MapaConceptualData} mapaActual
+ * @returns {MapaConceptualData | null}
+ */
+function resolverExpansionDemo(materiaId, tema, nodo, mapaActual) {
+  if (!materiaId) return null;
+  const template = getExpansionMapaDemo(materiaId, tema, nodo.id);
+  if (!template?.nodes?.length) return null;
+
+  const maxId = mapaActual.nodes.reduce((max, n) => {
+    const num = parseInt(n.id, 10);
+    return Number.isNaN(num) ? max : Math.max(max, num);
+  }, 0);
+
+  const idMap = template.nodes.map((_, i) => String(maxId + 1 + i));
+  const childLevel = nodo.level + 1;
+
+  const nodes = template.nodes.map((nodeTemplate, i) => ({
+    ...structuredClone(nodeTemplate),
+    id: idMap[i],
+    level: childLevel,
+  }));
+
+  const edges = template.edges.map((edgeTemplate) => ({
+    source: nodo.id,
+    target: idMap[edgeTemplate.targetIndex],
+    label: edgeTemplate.label,
+  }));
+
+  return { nodes, edges };
+}
+
+/**
  * @param {string} materia
  * @param {string} tema
  * @param {string} material
  * @param {'basico' | 'intermedio' | 'detallado'} profundidad
+ * @param {string} [materiaId]
  * @returns {Promise<MapaConceptualData>}
  */
-export async function generarMapaConceptual(materia, tema, material, profundidad = 'basico') {
+export async function generarMapaConceptual(materia, tema, material, profundidad = 'basico', materiaId) {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'tu-api-key-aqui') {
+    return resolverMapaDemo(materiaId, tema, profundidad)
+      ?? fallbackMapaConceptual(tema, profundidad);
+  }
+
   const prompt = `Eres TutorIA, un tutor del IPN. Genera un mapa conceptual para un principiante absoluto.
 
 Materia: ${materia}
@@ -133,7 +215,8 @@ REGLAS ESTRICTAS:
     const text = await llamarAPIGemini(prompt, 1200);
     return parseMapaJSON(text, profundidad);
   } catch {
-    return fallbackMapaConceptual(tema, profundidad);
+    return resolverMapaDemo(materiaId, tema, profundidad)
+      ?? fallbackMapaConceptual(tema, profundidad);
   }
 }
 
@@ -143,9 +226,16 @@ REGLAS ESTRICTAS:
  * @param {MapaNodo} nodo
  * @param {MapaConceptualData} mapaActual
  * @param {'basico' | 'intermedio' | 'detallado'} profundidad
+ * @param {string} [materiaId]
  * @returns {Promise<MapaConceptualData>}
  */
-export async function expandirNodoMapa(materia, tema, nodo, mapaActual, profundidad = 'basico') {
+export async function expandirNodoMapa(materia, tema, nodo, mapaActual, profundidad = 'basico', materiaId) {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'tu-api-key-aqui') {
+    return resolverExpansionDemo(materiaId, tema, nodo, mapaActual)
+      ?? fallbackExpandirNodo(nodo, mapaActual);
+  }
+
   const prompt = `Eres TutorIA, un tutor del IPN. Expande un nodo específico de un mapa conceptual existente.
 
 Materia: ${materia}
@@ -190,7 +280,8 @@ REGLAS ESTRICTAS:
     });
     return parsed;
   } catch {
-    return fallbackExpandirNodo(nodo, mapaActual);
+    return resolverExpansionDemo(materiaId, tema, nodo, mapaActual)
+      ?? fallbackExpandirNodo(nodo, mapaActual);
   }
 }
 

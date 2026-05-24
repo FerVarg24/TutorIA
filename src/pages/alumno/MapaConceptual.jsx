@@ -1,15 +1,19 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { CopilotKit } from '@copilotkit/react-core';
 import { CopilotSidebar } from '@copilotkit/react-ui';
 import { useApp } from '../../context/AppContext.jsx';
 import {
   getMateriaAlumnoById,
   MATERIAL_POR_MATERIA,
+  getFuentesTeamsPorTema,
+  getCanalTeams,
 } from '../../services/mockData.js';
 import { getTemasConDominio } from '../../utils/dominioTema.js';
 import { useMapaConceptual } from '../../hooks/useMapaConceptual.js';
 import Navbar from '../../components/Navbar.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
+import GlassPanel from '../../components/ui/GlassPanel.jsx';
 import SelectorTemas from '../../components/mapa/SelectorTemas.jsx';
 import ControlProfundidad from '../../components/mapa/ControlProfundidad.jsx';
 import MapaFlow from '../../components/mapa/MapaFlow.jsx';
@@ -47,8 +51,15 @@ export default function MapaConceptual() {
     simplificarMapa,
   } = useMapaConceptual({
     materia: materia?.nombre ?? '',
+    materiaId: id,
     material,
   });
+
+  useEffect(() => {
+    if (id === 'calc1' && temas.some((t) => t.tema === 'Límites')) {
+      seleccionarTema('Límites');
+    }
+  }, [id, temas, seleccionarTema]);
 
   if (!materia || !session) {
     return (
@@ -59,6 +70,9 @@ export default function MapaConceptual() {
   }
 
   const mapaGenerado = mapa.nodes.length > 0;
+  const fuentesTeams = temaSeleccionado ? getFuentesTeamsPorTema(id, temaSeleccionado) : [];
+  const canalTeams = getCanalTeams(id);
+  const profesorNombre = materia.profesor ?? 'tu profesor';
 
   return (
     <CopilotKit runtimeUrl="/api/copilotkit">
@@ -88,35 +102,46 @@ export default function MapaConceptual() {
             mapaGenerado={mapaGenerado}
           />
 
+          {mapaGenerado && fuentesTeams.length > 0 && (
+            <GlassPanel variant="rojo" className="flex flex-col gap-sm py-md px-lg">
+              <p className="font-ui text-sm text-ink-deep">
+                Mapa generado a partir del material que {profesorNombre} compartió en Teams
+                {canalTeams && (
+                  <span className="block text-xs text-on-dark-muted mt-xs">{canalTeams}</span>
+                )}
+              </p>
+              <ul className="flex flex-wrap gap-sm">
+                {fuentesTeams.map((archivo) => (
+                  <li
+                    key={archivo.id}
+                    className="inline-flex items-center gap-xs text-xs font-ui bg-accent-violet/10 text-accent-violet border border-accent-violet/20 rounded-md px-sm py-xs"
+                  >
+                    <span aria-hidden="true">📄</span>
+                    {archivo.nombre}
+                    <span className="text-on-dark-muted">({archivo.paginas})</span>
+                  </li>
+                ))}
+              </ul>
+            </GlassPanel>
+          )}
+
           <div className="flex-1 flex gap-lg min-h-0 relative">
             <div className="flex-1 flex flex-col min-h-0 relative">
-              {cargando && (
-                <div className="absolute inset-0 z-10 bg-surface-night/60 rounded-xl flex items-center justify-center">
-                  <div className="flex flex-col items-center gap-md">
-                    <div className="w-8 h-8 border-2 border-accent-violet border-t-accent-lime rounded-full animate-spin" />
-                    <p className="font-ui text-sm text-on-dark-muted animate-pulse">
-                      Generando mapa conceptual...
-                    </p>
-                  </div>
-                </div>
-              )}
-
               {error && (
                 <p className="font-ui text-sm text-riesgo-alto mb-sm">{error}</p>
               )}
 
-              {mapaGenerado ? (
-                <MapaFlow
-                  flowNodes={flowNodes}
-                  flowEdges={flowEdges}
-                  onNodeClick={seleccionarNodo}
-                  onExpand={expandirNodo}
-                  expandido={expandido}
-                  nodoActivo={nodoActivo}
-                />
-              ) : (
-                <MapaFlow placeholder />
-              )}
+              <MapaFlow
+                loading={cargando}
+                temaLabel={temaSeleccionado}
+                placeholder={!mapaGenerado && !cargando}
+                flowNodes={flowNodes}
+                flowEdges={flowEdges}
+                onNodeClick={seleccionarNodo}
+                onExpand={expandirNodo}
+                expandido={expandido}
+                nodoActivo={nodoActivo}
+              />
             </div>
 
             {nodoActivoData && (

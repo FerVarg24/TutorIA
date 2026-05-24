@@ -1,8 +1,15 @@
 import dagre from '@dagrejs/dagre';
+import {
+  buildBranchMetadata,
+  getBranchColorForNode,
+  getIconKeyForLabel,
+} from '../utils/mapaVisual.js';
 
 const NODE_WIDTH = 180;
-const NODE_HEIGHT = 56;
-const CENTRAL_RADIUS = 250;
+const NODE_HEIGHT = 88;
+const CENTRAL_RADIUS = 300;
+const LEVEL2_OFFSET = 150;
+const LEVEL2_SPREAD_BASE = 160;
 
 /**
  * @param {import('./mapaGeminiService.js').MapaConceptualData} mapa
@@ -13,34 +20,50 @@ export function aplicarLayout(mapa) {
     return { nodes: [], edges: [] };
   }
 
+  const branchMeta = buildBranchMetadata(mapa);
   const positions = calcularPosiciones(mapa);
 
-  const nodes = mapa.nodes.map((n) => ({
-    id: n.id,
-    type: 'concepto',
-    position: positions[n.id] ?? { x: 0, y: 0 },
-    data: {
-      label: n.label,
-      description: n.description,
-      example: n.example,
-      question: n.question,
-      level: n.level,
-    },
-  }));
+  const nodes = mapa.nodes.map((n) => {
+    const meta = branchMeta[n.id];
+    const iconKey = getIconKeyForLabel(n.label, n.level);
 
-  const edges = mapa.edges.map((e, i) => ({
-    id: `e-${e.source}-${e.target}-${i}`,
-    source: e.source,
-    target: e.target,
-    label: e.label,
-    type: 'smoothstep',
-    animated: false,
-    style: { stroke: '#7ba7d4', strokeWidth: 2 },
-    labelStyle: { fill: '#555555', fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: '#ffffff', fillOpacity: 0.85 },
-    labelBgPadding: [4, 6],
-    labelBgBorderRadius: 4,
-  }));
+    return {
+      id: n.id,
+      type: 'concepto',
+      position: positions[n.id] ?? { x: 0, y: 0 },
+      data: {
+        label: n.label,
+        description: n.description,
+        example: n.example,
+        question: n.question,
+        level: n.level,
+        branchIndex: meta?.branchIndex ?? 0,
+        branchColor: meta?.branchColor ?? '#7ba7d4',
+        branchBg: meta?.branchBg ?? 'rgba(123, 167, 212, 0.12)',
+        branchBorder: meta?.branchBorder ?? '#7ba7d4',
+        iconKey,
+      },
+    };
+  });
+
+  const edges = mapa.edges.map((e, i) => {
+    const branchColor = getBranchColorForNode(e.source, branchMeta, mapa.edges);
+
+    return {
+      id: `e-${e.source}-${e.target}-${i}`,
+      source: e.source,
+      target: e.target,
+      label: e.label,
+      type: 'concepto',
+      animated: false,
+      data: { branchColor },
+      style: { stroke: branchColor, strokeWidth: 2 },
+      labelStyle: { fill: branchColor, fontSize: 10, fontWeight: 600 },
+      labelBgStyle: { fill: '#ffffff', fillOpacity: 0.92 },
+      labelBgPadding: [4, 8],
+      labelBgBorderRadius: 12,
+    };
+  });
 
   return { nodes, edges };
 }
@@ -65,12 +88,15 @@ function calcularPosiciones(mapa) {
   const childrenMap = buildChildrenMap(mapa.edges);
 
   if (byLevel[1].length > 0) {
-    const angleStep = (2 * Math.PI) / byLevel[1].length;
+    const count = byLevel[1].length;
+    const angleStep = (2 * Math.PI) / count;
+    const radius = CENTRAL_RADIUS + Math.max(0, count - 5) * 20;
+
     byLevel[1].forEach((node, i) => {
       const angle = angleStep * i - Math.PI / 2;
       positions[node.id] = {
-        x: Math.cos(angle) * CENTRAL_RADIUS,
-        y: Math.sin(angle) * CENTRAL_RADIUS,
+        x: Math.cos(angle) * radius,
+        y: Math.sin(angle) * radius,
       };
     });
   }
@@ -87,24 +113,50 @@ function calcularPosiciones(mapa) {
         });
         const idx = siblings.indexOf(node.id);
         const count = siblings.length;
-        const spread = 140;
+        const spread = Math.max(LEVEL2_SPREAD_BASE, count * 50);
         const offsetX = count > 1 ? (idx - (count - 1) / 2) * spread : 0;
+
+        const direction = parentPos.y >= 0 ? 1 : parentPos.y < 0 ? -1 : parentPos.x >= 0 ? 0.6 : -0.6;
+        const verticalOffset = parentPos.y === 0
+          ? (parentPos.x >= 0 ? LEVEL2_OFFSET : -LEVEL2_OFFSET)
+          : direction * LEVEL2_OFFSET;
 
         positions[node.id] = {
           x: parentPos.x + offsetX,
-          y: parentPos.y + (parentPos.y >= 0 ? 120 : -120),
+          y: parentPos.y + verticalOffset,
         };
       } else {
-        positions[node.id] = { x: 0, y: 300 };
+        positions[node.id] = { x: 0, y: 360 };
       }
     });
   }
+
+  const deeperLevels = mapa.nodes.filter((n) => n.level > 2);
+  deeperLevels.forEach((node) => {
+    if (positions[node.id]) return;
+
+    const parentId = findParentId(node.id, mapa.edges);
+    const parentPos = parentId ? positions[parentId] : null;
+
+    if (parentPos) {
+      const siblings = childrenMap[parentId] ?? [];
+      const idx = siblings.indexOf(node.id);
+      const count = siblings.length;
+      const spread = 130;
+      const offsetX = count > 1 ? (idx - (count - 1) / 2) * spread : 0;
+
+      positions[node.id] = {
+        x: parentPos.x + offsetX,
+        y: parentPos.y + (parentPos.y >= 0 ? 130 : -130),
+      };
+    }
+  });
 
   const unplaced = mapa.nodes.filter((n) => !positions[n.id]);
   if (unplaced.length > 0) {
     const dagrePositions = layoutWithDagre(mapa);
     unplaced.forEach((n) => {
-      positions[n.id] = dagrePositions[n.id] ?? { x: 0, y: 400 };
+      positions[n.id] = dagrePositions[n.id] ?? { x: 0, y: 450 };
     });
   }
 
@@ -118,7 +170,7 @@ function calcularPosiciones(mapa) {
 function layoutWithDagre(mapa) {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: 'TB', nodesep: 80, ranksep: 120 });
+  g.setGraph({ rankdir: 'TB', nodesep: 100, ranksep: 140 });
 
   mapa.nodes.forEach((n) => {
     g.setNode(n.id, { width: NODE_WIDTH, height: NODE_HEIGHT });

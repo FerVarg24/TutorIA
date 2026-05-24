@@ -43,6 +43,13 @@
   --color-exito-text: #047857;
   --color-exito-text-deep: #065F46;
 
+  /* Chat surfaces */
+  --color-chat-user-bg: #ddeaf8;
+  --color-chat-ai-bg: #ffffff;
+  --color-chat-ai-accent-morado: #9B4FE9;
+  --color-chat-ai-accent-rojo: #E94F4F;
+  --color-chat-ai-accent-profesor: #5b9bd5;
+
   /* Typography */
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-ui: "Rubik", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -407,4 +414,196 @@
 
 .chat-online-dot {
   animation: chat-online-pulse 1.8s ease-in-out infinite;
+}
+
+/* Chat avatar status rings */
+.chat-avatar {
+  position: relative;
+  padding: 2px;
+  border-radius: 10px;
+}
+
+.chat-avatar__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.chat-avatar-ring--online {
+  background: linear-gradient(135deg, var(--color-exito-text), var(--color-exito-border));
+}
+
+.chat-avatar-ring--speaking {
+  background: linear-gradient(135deg, var(--color-riesgo-alto), var(--color-riesgo-medio));
+  animation: chat-avatar-pulse 1.2s ease-in-out infinite;
+}
+
+.chat-avatar-ring--listening {
+  background: linear-gradient(135deg, var(--color-exito-text), var(--color-primary));
+  animation: chat-avatar-pulse 1.8s ease-in-out infinite;
+}
+
+.chat-avatar-ring--muted {
+  background: var(--color-riesgo-medio);
+}
+
+.chat-avatar-ring--offline,
+.chat-avatar-ring--connecting {
+  background: var(--color-hairline-violet);
+}
+
+.chat-avatar-ring--connecting {
+  animation: chat-avatar-pulse 1s ease-in-out infinite;
+}
+
+@keyframes chat-avatar-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.03); }
+}
+
+/* Chat typing dots */
+@keyframes chat-typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.chat-typing-dot {
+  animation: chat-typing-bounce 1.2s ease-in-out infinite;
+}
+
+/* Chat voice orb */
+.chat-voice-orb__ring {
+  border: 2px solid;
+  opacity: 0.35;
+}
+
+.chat-voice-orb__ring--1 {
+  animation: chat-voice-ring 2s ease-out infinite;
+}
+
+.chat-voice-orb__ring--2 {
+  animation: chat-voice-ring 2s ease-out infinite 0.5s;
+}
+
+@keyframes chat-voice-ring {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+.chat-voice-bar {
+  height: 8px;
+  animation-duration: 0.8s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.chat-voice-bar--listening {
+  animation-name: chat-voice-listen;
+}
+
+.chat-voice-bar--speaking {
+  animation-name: chat-voice-speak;
+}
+
+@keyframes chat-voice-listen {
+  0%, 100% { height: 8px; }
+  50% { height: 20px; }
+}
+
+@keyframes chat-voice-speak {
+  0%, 100% { height: 12px; }
+  25% { height: 24px; }
+  75% { height: 16px; }
+}
+
+.bg-chat-user-bg {
+  background-color: var(--color-chat-user-bg);
+}
+
+.bg-chat-ai-bg {
+  background-color: var(--color-chat-ai-bg);
+}
+
+/* Mapa conceptual — canvas React Flow */
+.mapa-flow-wrapper {
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(221, 234, 248, 0.6) 0%,
+    rgba(255, 255, 255, 0.95) 70%
+  );
+}
+
+.mapa-flow-canvas {
+  background: transparent !important;
+}
+
+.mapa-flow-canvas .react-flow__node {
+  animation: mapa-node-enter 0.35s ease-out both;
+}
+
+.mapa-flow-canvas .react-flow__controls {
+  border: 1px solid var(--color-hairline-violet);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(74, 127, 181, 0.12);
+  overflow: hidden;
+}
+
+.mapa-flow-canvas .react-flow__controls-button {
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-hairline-violet);
+  fill: var(--color-accent-violet-deep);
+}
+
+.mapa-flow-canvas .react-flow__controls-button:hover {
+  background: var(--color-surface-press-light);
+}
+
+.mapa-edge-label {
+  z-index: 5;
+}
+
+.mapa-nodo-inner {
+  animation: mapa-nodo-inner-enter 0.35s ease-out both;
+}
+
+@keyframes mapa-node-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mapa-nodo-inner-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mapa loading skeleton */
+.mapa-loading-skeleton .mapa-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.mapa-loading-skeleton .mapa-skeleton-bar {
+  animation: mapa-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.mapa-loading-edges {
+  overflow: visible;
+}
+
+@keyframes mapa-skeleton-shimmer {
+  0%, 100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.95;
+  }
 }

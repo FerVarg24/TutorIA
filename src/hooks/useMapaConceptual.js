@@ -5,10 +5,20 @@ import {
 } from '../services/mapaGeminiService.js';
 import { aplicarLayout } from '../services/mapaLayout.js';
 
+const MIN_LOADING_MS = 600;
+
+async function ensureMinLoading(startTime) {
+  const elapsed = Date.now() - startTime;
+  const remaining = MIN_LOADING_MS - elapsed;
+  if (remaining > 0) {
+    await new Promise((resolve) => setTimeout(resolve, remaining));
+  }
+}
+
 /**
- * @param {{ materia: string, material: string }} config
+ * @param {{ materia: string, materiaId?: string, material: string }} config
  */
-export function useMapaConceptual({ materia, material }) {
+export function useMapaConceptual({ materia, materiaId, material }) {
   const [temaSeleccionado, setTemaSeleccionado] = useState(null);
   const [profundidad, setProfundidad] = useState('basico');
   const [mapa, setMapa] = useState({ nodes: [], edges: [] });
@@ -36,6 +46,7 @@ export function useMapaConceptual({ materia, material }) {
     setCargando(true);
     setError(null);
     setNodoActivo(null);
+    const startTime = Date.now();
 
     try {
       const resultado = await generarMapaConceptual(
@@ -43,7 +54,9 @@ export function useMapaConceptual({ materia, material }) {
         temaSeleccionado,
         material,
         profundidad,
+        materiaId,
       );
+      await ensureMinLoading(startTime);
       setMapa(resultado);
       actualizarFlow(resultado);
     } catch (err) {
@@ -51,7 +64,7 @@ export function useMapaConceptual({ materia, material }) {
     } finally {
       setCargando(false);
     }
-  }, [temaSeleccionado, materia, material, profundidad, actualizarFlow]);
+  }, [temaSeleccionado, materia, materiaId, material, profundidad, actualizarFlow]);
 
   const cambiarProfundidad = useCallback(
     async (nueva) => {
@@ -63,6 +76,7 @@ export function useMapaConceptual({ materia, material }) {
       setCargando(true);
       setError(null);
       setNodoActivo(null);
+      const startTime = Date.now();
 
       try {
         const resultado = await generarMapaConceptual(
@@ -70,7 +84,9 @@ export function useMapaConceptual({ materia, material }) {
           temaSeleccionado,
           material,
           nueva,
+          materiaId,
         );
+        await ensureMinLoading(startTime);
         setMapa(resultado);
         actualizarFlow(resultado);
       } catch (err) {
@@ -79,7 +95,7 @@ export function useMapaConceptual({ materia, material }) {
         setCargando(false);
       }
     },
-    [profundidad, temaSeleccionado, mapa.nodes.length, materia, material, actualizarFlow],
+    [profundidad, temaSeleccionado, mapa.nodes.length, materia, materiaId, material, actualizarFlow],
   );
 
   const expandirNodo = useCallback(
@@ -97,6 +113,7 @@ export function useMapaConceptual({ materia, material }) {
           nodo,
           mapa,
           profundidad,
+          materiaId,
         );
 
         const idsExistentes = new Set(mapa.nodes.map((n) => n.id));
@@ -119,7 +136,7 @@ export function useMapaConceptual({ materia, material }) {
         setExpandido(null);
       }
     },
-    [mapa, temaSeleccionado, materia, profundidad, actualizarFlow],
+    [mapa, temaSeleccionado, materia, materiaId, profundidad, actualizarFlow],
   );
 
   const seleccionarNodo = useCallback((id) => {

@@ -33,7 +33,7 @@ export default function Seguimiento({ alumno, onClose }) {
               <p className="font-ui text-on-dark-muted text-center mb-xxl leading-relaxed">
                 ¿Deseas enviarle un cuestionario diagnóstico a{' '}
                 <span className="text-ink-deep font-semibold">{alumno?.nombre}</span>?<br />
-                Recibirá el link directamente en su cuenta de Teams.
+                Recibirá una notificación en la plataforma para responderlo.
               </p>
 
               <div className="flex flex-col gap-md">
@@ -67,7 +67,7 @@ export default function Seguimiento({ alumno, onClose }) {
               </h2>
               <p className="font-ui text-on-dark-muted text-center mb-xxl leading-relaxed">
                 <span className="text-ink-deep font-semibold">{alumno?.nombre}</span>{' '}
-                recibirá el link por Teams en breve.
+                recibirá el cuestionario en su panel en breve.
               </p>
 
               <div className="flex flex-col gap-md">

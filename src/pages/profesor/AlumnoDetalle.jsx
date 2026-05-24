@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import {
@@ -14,7 +14,10 @@ import KpiStrip from '../../components/KpiStrip.jsx';
 import SplitWorkspaceLayout from '../../components/SplitWorkspaceLayout.jsx';
 import WorkspaceHeader from '../../components/WorkspaceHeader.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
-import Seguimiento from './Seguimiento.jsx';
+import {
+  showEnviarCuestionarioToast,
+  dismissEnviarCuestionarioToast,
+} from '../../utils/cuestionarioToast.js';
 
 export default function AlumnoDetalle() {
   const { boleta } = useParams();
@@ -25,7 +28,8 @@ export default function AlumnoDetalle() {
   const [analisis, setAnalisis] = useState('');
   const [loading, setLoading] = useState(true);
   const [analisisCompleto, setAnalisisCompleto] = useState(false);
-  const [showSeguimiento, setShowSeguimiento] = useState(false);
+  const [cuestionarioEnviado, setCuestionarioEnviado] = useState(false);
+  const toastIdRef = useRef(null);
 
   const materiaId = location.state?.materiaId ?? getMateriaIdByBoleta(boleta);
   const alumno = materiaId ? getAlumnoEnMateria(boleta, materiaId) : null;
@@ -40,11 +44,28 @@ export default function AlumnoDetalle() {
     setLoading(true);
     setAnalisis('');
     setAnalisisCompleto(false);
+    setCuestionarioEnviado(false);
 
     analizarAlumno(alumno)
       .then((text) => setAnalisis(text))
       .finally(() => setLoading(false));
   }, [alumno?.boleta]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!alumno || !analisisCompleto || loading || cuestionarioEnviado) return;
+
+    const timer = window.setTimeout(() => {
+      toastIdRef.current = showEnviarCuestionarioToast({
+        alumno,
+        onEnviado: () => setCuestionarioEnviado(true),
+      });
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+      dismissEnviarCuestionarioToast(toastIdRef.current);
+    };
+  }, [alumno, analisisCompleto, loading, cuestionarioEnviado]);
 
   if (!alumno) {
     return (
@@ -76,25 +97,17 @@ export default function AlumnoDetalle() {
           />
         }
         left={
-          <div className="flex flex-1 min-h-0 flex-col gap-lg overflow-hidden">
+          <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
             <TutorIA
               modo="profesor"
               datosAlumno={alumno}
               title="Análisis del agente TutorIA"
               variant="profesor"
-              fallbackText={loading ? 'Analizando datos del alumno...' : analisis}
+              fallbackText={analisis || 'Analizando datos del alumno...'}
+              loading={loading}
               onComplete={() => setAnalisisCompleto(true)}
-              className="flex-1"
+              className="flex-1 min-h-0"
             />
-            {analisisCompleto && !loading && (
-              <BotonPrimario
-                variant="primary"
-                className="w-full justify-center shrink-0"
-                onClick={() => setShowSeguimiento(true)}
-              >
-                Dar seguimiento a este alumno
-              </BotonPrimario>
-            )}
           </div>
         }
         leftFooter={
@@ -118,13 +131,6 @@ export default function AlumnoDetalle() {
           </>
         }
       />
-
-      {showSeguimiento && (
-        <Seguimiento
-          alumno={alumno}
-          onClose={() => setShowSeguimiento(false)}
-        />
-      )}
     </>
   );
 }

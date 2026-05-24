@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
+  BackgroundVariant,
   Controls,
   useNodesState,
   useEdgesState,
@@ -10,8 +11,11 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import NodoConcepto from './NodoConcepto.jsx';
+import EdgeConcepto from './EdgeConcepto.jsx';
+import MapaLoadingSkeleton from './MapaLoadingSkeleton.jsx';
 
 const nodeTypes = { concepto: NodoConcepto };
+const edgeTypes = { concepto: EdgeConcepto };
 
 function MapaFlowInner({
   flowNodes,
@@ -39,16 +43,31 @@ function MapaFlowInner({
     [flowNodes, onExpand, expandido, nodoActivo],
   );
 
+  const edgesWithHighlight = useMemo(
+    () =>
+      flowEdges.map((e) => ({
+        ...e,
+        data: {
+          ...e.data,
+          highlighted:
+            e.source === nodoActivo ||
+            e.target === nodoActivo,
+        },
+        animated: e.source === nodoActivo || e.target === nodoActivo,
+      })),
+    [flowEdges, nodoActivo],
+  );
+
   useEffect(() => {
     setNodes(nodesWithHandlers);
-    setEdges(flowEdges);
-  }, [nodesWithHandlers, flowEdges, setNodes, setEdges]);
+    setEdges(edgesWithHighlight);
+  }, [nodesWithHandlers, edgesWithHighlight, setNodes, setEdges]);
 
   useEffect(() => {
     if (flowNodes.length > 0) {
       const timer = setTimeout(() => {
-        fitView({ padding: 0.2, duration: 400 });
-      }, 50);
+        fitView({ padding: 0.25, duration: 500 });
+      }, 80);
       return () => clearTimeout(timer);
     }
   }, [flowNodes, fitView]);
@@ -68,14 +87,20 @@ function MapaFlowInner({
       onEdgesChange={onEdgesChange}
       onNodeClick={handleNodeClick}
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
       fitView
-      minZoom={0.3}
-      maxZoom={1.5}
+      minZoom={0.25}
+      maxZoom={1.6}
       proOptions={{ hideAttribution: true }}
-      className="bg-surface-press-light/30 rounded-xl"
+      className="mapa-flow-canvas"
     >
-      <Background color="#c5d9ef" gap={20} />
-      <Controls showInteractive={false} />
+      <Background
+        variant={BackgroundVariant.Dots}
+        color="#b8d0e8"
+        gap={24}
+        size={1.2}
+      />
+      <Controls showInteractive={false} className="mapa-flow-controls" />
     </ReactFlow>
   );
 }
@@ -89,9 +114,15 @@ function MapaFlowInner({
  *   expandido: string | null,
  *   nodoActivo: string | null,
  *   placeholder?: boolean,
+ *   loading?: boolean,
+ *   temaLabel?: string | null,
  * }} props
  */
 export default function MapaFlow(props) {
+  if (props.loading) {
+    return <MapaLoadingSkeleton tema={props.temaLabel} />;
+  }
+
   if (props.placeholder) {
     return (
       <div className="flex-1 min-h-[400px] bg-surface-press-light/20 border border-dashed border-hairline-violet rounded-xl flex items-center justify-center">
@@ -103,7 +134,7 @@ export default function MapaFlow(props) {
   }
 
   return (
-    <div className="flex-1 min-h-[400px] rounded-xl overflow-hidden border border-hairline-violet">
+    <div className="flex-1 min-h-[400px] rounded-xl overflow-hidden border border-hairline-violet mapa-flow-wrapper">
       <ReactFlowProvider>
         <MapaFlowInner {...props} />
       </ReactFlowProvider>

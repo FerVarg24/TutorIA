@@ -122,7 +122,7 @@ export default function MateriaRoja() {
                   className="w-full justify-center"
                   onClick={() => setShowSelectorGuia(true)}
                 >
-                  Ver guía de estudio
+                  Ver materiales de estudio
                 </BotonPrimario>
                 <BotonPrimario variant="ghost" className="w-full justify-center">
                   Becas IPN disponibles
