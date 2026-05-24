@@ -56,15 +56,15 @@ export default function AlumnoDetalle() {
   ];
 
   return (
-    <div className="min-h-screen bg-surface-canvas-dark flex flex-col">
+    <div className="min-h-screen lg:h-screen bg-surface-canvas-dark flex flex-col lg:overflow-hidden">
       <Navbar title={alumno.nombre} breadcrumbs={breadcrumbs} />
 
-      <div className="flex-1 grid lg:grid-cols-2 gap-xl p-xl">
+      <div className="flex-1 min-h-0 p-xl">
+        <div className="grid h-full min-h-0 lg:grid-cols-2 gap-xl">
 
         {/* ── Left column: mascot analysis ── */}
-        <div className="flex flex-col gap-xl">
-          {/* Student quick-info strip */}
-          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex items-center gap-lg">
+        <div className="flex flex-col gap-xl min-h-0 h-full overflow-hidden">
+          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex items-center gap-lg shrink-0">
             <div className="w-12 h-12 rounded-full bg-riesgo-alto/20 border border-riesgo-alto/40 flex items-center justify-center shrink-0">
               <span className="text-riesgo-alto text-lg font-bold font-display">
                 {alumno.nombre.charAt(0)}
@@ -80,21 +80,21 @@ export default function AlumnoDetalle() {
           </div>
 
           {/* Analysis card */}
-          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex-1 flex flex-col gap-lg">
-            <h2 className="font-display text-lg font-semibold text-ink-deep">
+          <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex-1 min-h-0 flex flex-col gap-lg overflow-hidden">
+            <h2 className="font-display text-lg font-semibold text-ink-deep shrink-0">
               Análisis del agente TutorIA
             </h2>
 
             {loading ? (
-              <div className="flex flex-col items-center gap-lg py-xl flex-1 justify-center">
+              <div className="flex flex-col items-center gap-lg py-xl flex-1 min-h-0 justify-center">
                 <div className="w-8 h-8 border-2 border-accent-violet border-t-accent-lime rounded-full animate-spin" />
                 <p className="font-ui text-on-dark-muted text-sm animate-pulse">
                   Analizando datos del alumno...
                 </p>
               </div>
             ) : (
-              <div className="flex-1 flex flex-col gap-xl">
-                <div className="bg-accent-violet-deep/30 border border-accent-violet/20 rounded-xl p-xl">
+              <div className="flex-1 min-h-0 flex flex-col gap-xl overflow-hidden">
+                <div className="bg-accent-violet-deep/30 border border-accent-violet/20 rounded-xl p-xl flex-1 min-h-0 overflow-y-auto">
                   <TypewriterText
                     text={analisis}
                     speed={25}
@@ -106,7 +106,7 @@ export default function AlumnoDetalle() {
                 {analisisCompleto && (
                   <BotonPrimario
                     variant="primary"
-                    className="w-full justify-center"
+                    className="w-full justify-center shrink-0"
                     onClick={() => setShowSeguimiento(true)}
                   >
                     Dar seguimiento a este alumno
@@ -116,24 +116,24 @@ export default function AlumnoDetalle() {
             )}
           </div>
 
-          {/* Back button */}
           <BotonPrimario
             variant="ghost"
             onClick={() => navigate('/profesor/materias')}
-            className="w-full justify-center"
+            className="w-full justify-center shrink-0"
           >
             ← Volver a mis alumnos
           </BotonPrimario>
         </div>
 
         {/* ── Right column: dashboard ── */}
-        <div className="flex flex-col gap-xl overflow-y-auto">
+        <div className="flex flex-col gap-xl min-h-0 h-full overflow-y-auto">
           <Dashboard
             alumno={alumno}
             materiaId={materiaId}
             factores={analisisCompleto ? getFactoresRiesgo(alumno.boleta) : []}
             showTrend={true}
           />
+        </div>
         </div>
       </div>
 

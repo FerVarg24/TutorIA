@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
-import { MATERIAS_PROFESOR } from '../../services/mockData.js';
+import { getResumenRiesgoMateria, MATERIAS_PROFESOR } from '../../services/mockData.js';
 import Navbar from '../../components/Navbar.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
+import MateriaCard from '../../components/MateriaCard.jsx';
 
 export default function MateriasProfesor() {
   const { setMascota } = useApp();
   const navigate = useNavigate();
 
-  const [uploadState, setUploadState] = useState('idle'); // 'idle' | 'loading' | 'done'
+  const [uploadState, setUploadState] = useState('idle');
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -27,7 +28,6 @@ export default function MateriasProfesor() {
     <div className="min-h-screen bg-surface-canvas-dark">
       <Navbar title="Mis Materias" />
 
-      {/* Hidden file input */}
       <input
         type="file"
         accept=".csv,.xlsx,.pdf,image/*"
@@ -37,7 +37,6 @@ export default function MateriasProfesor() {
       />
 
       <main className="p-xl">
-        {/* Header row */}
         <div className="flex items-center justify-between mb-xxl">
           <div>
             <h1 className="font-display text-3xl font-bold text-ink-deep mb-xs">
@@ -68,39 +67,30 @@ export default function MateriasProfesor() {
           )}
         </div>
 
-        {/* Subjects grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-xl">
-          {MATERIAS_PROFESOR.map((materia) => (
-            <button
-              key={materia.id}
-              type="button"
-              onClick={() => navigate(`/profesor/materia/${materia.id}`)}
-              className="text-left bg-surface-night border border-hairline-violet rounded-xl p-xl cursor-pointer hover:border-accent-violet transition-all group"
-            >
-              {/* Top row: name + risk badge */}
-              <div className="flex items-start justify-between gap-md mb-md">
-                <h2 className="font-display text-lg font-semibold text-ink-deep group-hover:text-primary transition-colors leading-snug">
-                  {materia.nombre}
-                </h2>
-                <span className="shrink-0 bg-riesgo-alto/20 text-riesgo-alto border border-riesgo-alto/30 rounded-full px-sm py-xs text-sm font-bold font-ui whitespace-nowrap">
-                  {materia.en_riesgo} en riesgo
-                </span>
-              </div>
+          {MATERIAS_PROFESOR.map((materia, index) => {
+            const breakdown = getResumenRiesgoMateria(materia.id);
 
-              {/* Meta */}
-              <p className="font-ui text-sm text-on-dark-muted mb-sm">
-                Grupo: <span className="text-ink-deep font-medium">{materia.grupo}</span>
-              </p>
-              <p className="font-ui text-sm text-on-dark-muted">
-                {materia.alumnos} alumnos inscritos
-              </p>
-
-              {/* Footer hint */}
-              <p className="mt-lg font-ui text-xs text-accent-violet group-hover:text-primary transition-colors">
-                Ver lista de alumnos →
-              </p>
-            </button>
-          ))}
+            return (
+              <MateriaCard
+                key={materia.id}
+                materiaId={materia.id}
+                nombre={materia.nombre}
+                variant="profesor"
+                badge={`${materia.en_riesgo} en riesgo`}
+                meta={[`Grupo ${materia.grupo}`, `${materia.alumnos} inscritos`]}
+                resumenRiesgo={{
+                  ...breakdown,
+                  total: materia.alumnos,
+                  en_riesgo: materia.en_riesgo,
+                }}
+                cta="Ver lista de alumnos"
+                showPulse={materia.en_riesgo >= 5}
+                index={index}
+                onClick={() => navigate(`/profesor/materia/${materia.id}`)}
+              />
+            );
+          })}
         </div>
       </main>
     </div>

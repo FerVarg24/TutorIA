@@ -10,7 +10,6 @@ export default function LoginAlumno() {
 
   const [boleta, setBoleta] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
   useEffect(() => {
     setMascota({ modo: 'bounce', mensaje: '' });
@@ -18,18 +17,10 @@ export default function LoginAlumno() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    setError('');
 
-    const user = USUARIOS_ALUMNO.find(
-      (u) => u.boleta === boleta.trim() && u.password === password
-    );
-
-    if (user) {
-      login({ ...user, rol: 'alumno' });
-      navigate('/alumno/materias');
-    } else {
-      setError('Boleta o contraseña incorrecta');
-    }
+    const demoUser = USUARIOS_ALUMNO[0];
+    login({ ...demoUser, rol: 'alumno' });
+    navigate('/alumno/materias');
   }
 
   return (
@@ -55,7 +46,6 @@ export default function LoginAlumno() {
               type="text"
               inputMode="numeric"
               autoComplete="username"
-              required
               value={boleta}
               onChange={(e) => setBoleta(e.target.value)}
               placeholder="2021630001"
@@ -74,7 +64,6 @@ export default function LoginAlumno() {
               id="password-alumno"
               type="password"
               autoComplete="current-password"
-              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -82,24 +71,15 @@ export default function LoginAlumno() {
             />
           </div>
 
-          {error && (
-            <p role="alert" className="font-ui text-riesgo-alto text-sm text-center">
-              {error}
-            </p>
-          )}
-
           <BotonPrimario
-            variant="inverted"
+            variant="primary"
             type="submit"
-            className="w-full py-lg mt-sm"
+            className="w-full py-lg mt-sm shadow-[0_8px_24px_rgba(91,155,213,0.35)]"
           >
             Entrar
           </BotonPrimario>
         </form>
 
-        <p className="font-ui text-on-dark-muted text-xs text-center mt-xl">
-          Demo: boleta 2021630001 / demo1234
-        </p>
       </div>
 
       <button

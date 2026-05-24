@@ -10,27 +10,17 @@ export default function LoginProfesor() {
 
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
-  // Trigger mascot bounce on mount
   useEffect(() => {
     setMascota({ modo: 'bounce', mensaje: '' });
   }, [setMascota]);
 
   function handleSubmit(e) {
     e.preventDefault();
-    setError('');
 
-    const user = USUARIOS_PROFESOR.find(
-      (u) => u.correo === correo.trim() && u.password === password
-    );
-
-    if (user) {
-      login({ ...user, rol: 'profesor' });
-      navigate('/profesor/materias');
-    } else {
-      setError('Credenciales incorrectas');
-    }
+    const demoUser = USUARIOS_PROFESOR[0];
+    login({ ...demoUser, rol: 'profesor' });
+    navigate('/profesor/materias');
   }
 
   return (
@@ -57,7 +47,6 @@ export default function LoginProfesor() {
               id="correo"
               type="email"
               autoComplete="username"
-              required
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
               placeholder="usuario@ipn.mx"
@@ -76,7 +65,6 @@ export default function LoginProfesor() {
               id="password"
               type="password"
               autoComplete="current-password"
-              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -84,26 +72,15 @@ export default function LoginProfesor() {
             />
           </div>
 
-          {/* Inline error message */}
-          {error && (
-            <p role="alert" className="font-ui text-riesgo-alto text-sm text-center">
-              {error}
-            </p>
-          )}
-
           <BotonPrimario
-            variant="inverted"
+            variant="primary"
             type="submit"
-            className="w-full py-lg mt-sm"
+            className="w-full py-lg mt-sm shadow-[0_8px_24px_rgba(91,155,213,0.35)]"
           >
             Entrar
           </BotonPrimario>
         </form>
 
-        {/* Demo hint */}
-        <p className="font-ui text-on-dark-muted text-xs text-center mt-xl">
-          Demo: profesor@ipn.mx / demo1234
-        </p>
       </div>
 
       {/* Back link */}

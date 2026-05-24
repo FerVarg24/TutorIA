@@ -36,6 +36,13 @@
   --color-riesgo-bajo: #4FE97A;
   --color-iniciativa-alumno: #9B4FE9;
 
+  /* Success on light surfaces — readable green UI (cards, badges) */
+  --color-exito-surface: #ECFDF5;
+  --color-exito-surface-strong: #D1FAE5;
+  --color-exito-border: #6EE7B7;
+  --color-exito-text: #047857;
+  --color-exito-text-deep: #065F46;
+
   /* Typography */
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-ui: "Rubik", -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -98,6 +105,10 @@
   .font-code {
     font-family: var(--font-code);
   }
+}
+
+[data-sileo-viewport] {
+  z-index: 9999;
 }
 
 /* Mascota animations */

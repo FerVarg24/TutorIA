@@ -203,6 +203,8 @@ export const MATERIAS_ALUMNO = [
     estado: "rojo",
     profesor: "Dr. Ramírez",
     creditos: 6,
+    promedio: 5.2,
+    parcial: 2,
   },
   {
     id: "fis1",
@@ -210,6 +212,8 @@ export const MATERIAS_ALUMNO = [
     estado: "morado",
     profesor: "Ing. López",
     creditos: 5,
+    promedio: 5.8,
+    parcial: 2,
   },
   {
     id: "prog1",
@@ -217,6 +221,8 @@ export const MATERIAS_ALUMNO = [
     estado: "verde",
     profesor: "M.C. Torres",
     creditos: 6,
+    promedio: 8.7,
+    parcial: 2,
   },
 ];
 
@@ -575,6 +581,21 @@ export function getMateriaById(id) {
  */
 export function getMateriaAlumnoById(id) {
   return MATERIAS_ALUMNO.find((m) => m.id === id) ?? null;
+}
+
+/**
+ * Aggregates risk counts for a subject from ALUMNOS_POR_MATERIA.
+ * en_riesgo = alto + medio (students requiring attention).
+ */
+export function getResumenRiesgoMateria(materiaId) {
+  const alumnos = ALUMNOS_POR_MATERIA[materiaId] ?? [];
+  const alto = alumnos.filter((a) => a.nivel_riesgo === 'alto').length;
+  const medio = alumnos.filter((a) => a.nivel_riesgo === 'medio').length;
+  const bajo = alumnos.filter((a) => a.nivel_riesgo === 'bajo').length;
+  const total = alumnos.length;
+  const en_riesgo = alto + medio;
+
+  return { alto, medio, bajo, total, en_riesgo };
 }
 
 /**

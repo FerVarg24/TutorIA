@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import {
@@ -10,6 +10,7 @@ import { chatAgente, generarGuia } from '../../services/anthropicService.js';
 import ChatAgente from '../../components/ChatAgente.jsx';
 import Navbar from '../../components/Navbar.jsx';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
+import { showCuestionarioToast, dismissCuestionarioToast } from '../../utils/cuestionarioToast.js';
 
 export default function MateriaMonrada() {
   const { id } = useParams();
@@ -24,12 +25,25 @@ export default function MateriaMonrada() {
   const [guia, setGuia] = useState(null);
   const [guiaLoading, setGuiaLoading] = useState(false);
   const [quizRespondido, setQuizRespondido] = useState(false);
+  const toastIdRef = useRef(null);
 
   useEffect(() => {
     setMascota({ modo: 'hablando', mensaje: '' });
   }, [setMascota]);
 
-  // Inject the initial agent greeting on mount, once materia/alumno are resolved
+  useEffect(() => {
+    if (quizRespondido) return;
+    const timer = window.setTimeout(() => {
+      toastIdRef.current = showCuestionarioToast({
+        onRespondido: () => setQuizRespondido(true),
+      });
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      dismissCuestionarioToast(toastIdRef.current);
+    };
+  }, [quizRespondido]);
+
   useEffect(() => {
     if (!materia && !alumno) return;
     const mensajeInicial = `¡Hola ${alumno?.nombre ?? 'estudiante'}! Notamos algunas variaciones en tu desempeño en ${materia?.nombre ?? 'esta materia'}. ¿Quieres que revisemos juntos cómo estás?`;
@@ -38,7 +52,6 @@ export default function MateriaMonrada() {
     ]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Count only user messages to decide when to generate the guide
   const userTurnCount = historial.filter((m) => m.role === 'user').length;
 
   const handleSend = useCallback(async (mensaje) => {
@@ -48,7 +61,6 @@ export default function MateriaMonrada() {
     setLoading(true);
 
     try {
-      // Pass only the messages before the new user message as context
       const respuesta = await chatAgente(historial, mensaje);
       const assistantMsg = { id: `a-${Date.now()}`, role: 'assistant', content: respuesta };
       setHistorial((prev) => [...prev, assistantMsg]);
@@ -56,7 +68,6 @@ export default function MateriaMonrada() {
       setLoading(false);
     }
 
-    // On the 3rd user turn, trigger guide generation
     const newUserCount = nextHistorial.filter((m) => m.role === 'user').length;
     if (newUserCount === 3 && !guia && !guiaLoading) {
       setGuiaLoading(true);
@@ -83,17 +94,17 @@ export default function MateriaMonrada() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-canvas-dark flex flex-col">
+    <div className="min-h-screen lg:h-screen bg-surface-canvas-dark flex flex-col lg:overflow-hidden">
       <Navbar title={materia.nombre} breadcrumbs={[
         { label: 'Mis Materias', href: '/alumno/materias' },
         { label: materia.nombre, href: '#' },
       ]} />
 
-      <div className="flex-1 grid lg:grid-cols-2 gap-xl p-xl">
+      <div className="flex-1 min-h-0 p-xl">
+        <div className="grid h-full min-h-0 lg:grid-cols-2 gap-xl">
 
         {/* ── Left column: chat ── */}
-        <div className="flex flex-col gap-xl min-h-0">
-          {/* Subject + student header */}
+        <div className="flex flex-col gap-xl min-h-0 h-full overflow-hidden">
           <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex items-center gap-lg shrink-0">
             <div className="w-12 h-12 rounded-full bg-iniciativa-alumno/20 border border-iniciativa-alumno/40 flex items-center justify-center shrink-0">
               <span className="text-iniciativa-alumno text-lg font-bold font-display">
@@ -111,58 +122,22 @@ export default function MateriaMonrada() {
             </span>
           </div>
 
-          {/* Chat takes remaining height */}
-          <div style={{ height: '500px' }}>
+          <div className="flex-1 min-h-0">
             <ChatAgente historial={historial} onSend={handleSend} loading={loading} />
           </div>
 
-          {/* Back button */}
           <BotonPrimario
             variant="ghost"
             onClick={() => navigate('/alumno/materias')}
-            className="w-full justify-center transition-all hover:border-accent-violet hover:text-accent-violet"
+            className="w-full justify-center shrink-0 transition-all hover:border-accent-violet hover:text-accent-violet"
           >
             ← Volver a mis materias
           </BotonPrimario>
         </div>
 
         {/* ── Right column: guide or waiting card ── */}
-        <div className="flex flex-col gap-xl">
-          {!quizRespondido ? (
-            <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
-              <h3 className="font-display text-base font-semibold text-ink-deep">
-                Cuestionario Diagnóstico
-              </h3>
-              <p className="font-ui text-sm text-on-dark-muted">
-                Tu profesor quiere conocer mejor tu situación para darte apoyo personalizado. Solo toma 3 minutos.
-              </p>
-              <BotonPrimario
-                variant="primary"
-                className="w-full justify-center"
-                onClick={() => {
-                  const url = 'https://forms.office.com/Pages/ResponsePage.aspx?id=2fRL-ZeAlEet9qVGbKKFY3P5AuTpSp1Mla03QS3vIkVUNEUxVUxRODY3NkNQSDFSU05NUzk5WFBTWS4u';
-                  window.open(url, '_blank');
-                  setTimeout(() => setQuizRespondido(true), 1500);
-                }}
-              >
-                📋 Responder cuestionario
-              </BotonPrimario>
-            </div>
-          ) : (
-            <div className="bg-surface-night border border-hairline-violet bg-riesgo-bajo/10 border-riesgo-bajo/30 rounded-xl p-xl flex flex-col gap-md">
-              <div className="flex items-center gap-sm">
-                <span className="text-riesgo-bajo text-lg">✅</span>
-                <h3 className="font-display text-base font-semibold text-ink-deep">
-                  ¡Cuestionario enviado!
-                </h3>
-              </div>
-              <p className="font-ui text-sm text-on-dark-muted">
-                El Dr. Ramírez ya recibió tus respuestas. Recibirás tu guía personalizada pronto.
-              </p>
-            </div>
-          )}
+        <div className="flex flex-col gap-xl min-h-0 h-full overflow-y-auto">
           {guiaLoading ? (
-            /* Generating state */
             <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col items-center gap-lg py-xxl">
               <div className="w-8 h-8 border-2 border-accent-violet border-t-accent-lime rounded-full animate-spin" />
               <p className="font-ui text-on-dark-muted text-sm animate-pulse text-center">
@@ -170,7 +145,6 @@ export default function MateriaMonrada() {
               </p>
             </div>
           ) : guia ? (
-            /* Study guide card */
             <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md overflow-y-auto">
               <div className="flex items-center gap-sm mb-xs">
                 <span className="w-2 h-2 rounded-full bg-accent-lime shrink-0" />
@@ -185,7 +159,6 @@ export default function MateriaMonrada() {
               </div>
             </div>
           ) : (
-            /* Waiting card — shown while userTurnCount < 3 */
             <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col items-center gap-lg py-xxl">
               <div className="w-16 h-16 rounded-full bg-iniciativa-alumno/20 border border-iniciativa-alumno/30 flex items-center justify-center">
                 <span className="text-2xl" role="img" aria-label="chat">💬</span>
@@ -198,7 +171,6 @@ export default function MateriaMonrada() {
                   Responde las preguntas del agente para generar tu guía personalizada
                 </p>
               </div>
-              {/* Progress indicator */}
               <div className="flex gap-sm items-center mt-sm">
                 {[1, 2, 3].map((step) => (
                   <div
@@ -216,6 +188,7 @@ export default function MateriaMonrada() {
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
