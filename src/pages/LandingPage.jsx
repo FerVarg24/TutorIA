@@ -24,6 +24,10 @@ export default function LandingPage() {
       </div>
 
       <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-lg py-section text-center">
+        <p className="landing-brand font-display text-ink-deep">
+          Tutor<span className="landing-brand__ia">IA</span>
+        </p>
+
         <h1 className="mt-xl font-display font-extrabold leading-[1.04] tracking-[-0.04em] text-ink-deep" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', maxWidth: '760px', textShadow: '0 2px 14px rgba(255, 255, 255, 0.95), 0 0 28px rgba(255, 255, 255, 0.8)' }}>
           Detecta el riesgo antes de que sea tarde.
         </h1>
