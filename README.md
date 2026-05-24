@@ -6,7 +6,7 @@
 
 Plataforma de intervención temprana con IA para profesores y alumnos del **IPN**.
 
-*Diseñado para vivir en Microsoft Teams — demo navegable con datos representativos del IPN.*
+*Diseñado para vivir en ecosistema Microsoft — demo navegable con datos representativos del IPN.*
 
 <br />
 
@@ -355,7 +355,7 @@ Este repositorio es un **prototipo funcional navegable** del Hackathon Universit
 
 ### Equipo TutorIA
 
-*Hackathon Universitario de Impacto Social con AI — Microsoft México*
+*UHacks — UPIITA y Microsoft México*
 
 **Reto 1:** Educación y Brecha Digital · **Institución:** IPN
 
