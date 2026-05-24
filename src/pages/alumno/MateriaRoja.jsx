@@ -39,9 +39,14 @@ export default function MateriaRoja() {
     );
   }
 
+  const breadcrumbs = [
+    { label: 'Mis Materias', href: '/alumno/materias' },
+    { label: materia.nombre, href: '#' },
+  ];
+
   return (
     <div className="min-h-screen bg-surface-canvas-dark flex flex-col">
-      <Navbar title={materia.nombre} />
+      <Navbar title={materia.nombre} breadcrumbs={breadcrumbs} />
 
       <div className="flex-1 grid lg:grid-cols-2 gap-xl p-xl min-h-0">
 
@@ -80,7 +85,11 @@ export default function MateriaRoja() {
           </div>
 
           {/* Back button */}
-          <BotonPrimario variant="ghost" onClick={() => navigate('/alumno/materias')}>
+          <BotonPrimario
+            variant="ghost"
+            onClick={() => navigate('/alumno/materias')}
+            className="w-full justify-center transition-all hover:border-accent-violet hover:text-accent-violet"
+          >
             ← Volver a mis materias
           </BotonPrimario>
         </div>

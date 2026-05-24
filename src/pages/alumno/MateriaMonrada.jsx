@@ -84,7 +84,10 @@ export default function MateriaMonrada() {
 
   return (
     <div className="min-h-screen bg-surface-canvas-dark flex flex-col">
-      <Navbar title={materia.nombre} />
+      <Navbar title={materia.nombre} breadcrumbs={[
+        { label: 'Mis Materias', href: '/alumno/materias' },
+        { label: materia.nombre, href: '#' },
+      ]} />
 
       <div className="flex-1 grid lg:grid-cols-2 gap-xl p-xl">
 
@@ -114,7 +117,11 @@ export default function MateriaMonrada() {
           </div>
 
           {/* Back button */}
-          <BotonPrimario variant="ghost" onClick={() => navigate('/alumno/materias')} className="shrink-0">
+          <BotonPrimario
+            variant="ghost"
+            onClick={() => navigate('/alumno/materias')}
+            className="w-full justify-center transition-all hover:border-accent-violet hover:text-accent-violet"
+          >
             ← Volver a mis materias
           </BotonPrimario>
         </div>

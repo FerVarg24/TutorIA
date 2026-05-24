@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import {
   getAlumnoEnMateria,
@@ -16,6 +16,7 @@ import Seguimiento from './Seguimiento.jsx';
 export default function AlumnoDetalle() {
   const { boleta } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { setMascota } = useApp();
 
   const [analisis, setAnalisis] = useState('');
@@ -50,9 +51,13 @@ export default function AlumnoDetalle() {
     );
   }
 
+  const breadcrumbs = [
+    { label: 'Mis Alumnos', href: '/profesor/materias' },
+  ];
+
   return (
     <div className="min-h-screen bg-surface-canvas-dark flex flex-col">
-      <Navbar title={alumno.nombre} />
+      <Navbar title={alumno.nombre} breadcrumbs={breadcrumbs} />
 
       <div className="flex-1 grid lg:grid-cols-2 gap-xl p-xl">
 
@@ -110,6 +115,15 @@ export default function AlumnoDetalle() {
               </div>
             )}
           </div>
+
+          {/* Back button */}
+          <BotonPrimario
+            variant="ghost"
+            onClick={() => navigate('/profesor/materias')}
+            className="w-full justify-center"
+          >
+            ← Volver a mis alumnos
+          </BotonPrimario>
         </div>
 
         {/* ── Right column: dashboard ── */}
