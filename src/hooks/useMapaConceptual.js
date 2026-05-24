@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import {
   generarMapaConceptual,
   expandirNodoMapa,
-} from '../services/anthropicService.js';
+} from '../services/mapaGeminiService.js';
 import { aplicarLayout } from '../services/mapaLayout.js';
 
 /**

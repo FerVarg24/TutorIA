@@ -5,7 +5,7 @@ const NODE_HEIGHT = 56;
 const CENTRAL_RADIUS = 250;
 
 /**
- * @param {import('./anthropicService.js').MapaConceptualData} mapa
+ * @param {import('./mapaGeminiService.js').MapaConceptualData} mapa
  * @returns {{ nodes: import('@xyflow/react').Node[], edges: import('@xyflow/react').Edge[] }}
  */
 export function aplicarLayout(mapa) {
@@ -46,7 +46,7 @@ export function aplicarLayout(mapa) {
 }
 
 /**
- * @param {import('./anthropicService.js').MapaConceptualData} mapa
+ * @param {import('./mapaGeminiService.js').MapaConceptualData} mapa
  * @returns {Record<string, { x: number, y: number }>}
  */
 function calcularPosiciones(mapa) {
@@ -112,7 +112,7 @@ function calcularPosiciones(mapa) {
 }
 
 /**
- * @param {import('./anthropicService.js').MapaConceptualData} mapa
+ * @param {import('./mapaGeminiService.js').MapaConceptualData} mapa
  * @returns {Record<string, { x: number, y: number }>}
  */
 function layoutWithDagre(mapa) {
@@ -145,7 +145,7 @@ function layoutWithDagre(mapa) {
 }
 
 /**
- * @param {import('./anthropicService.js').MapaConceptualData['edges']} edges
+ * @param {import('./mapaGeminiService.js').MapaConceptualData['edges']} edges
  * @returns {Record<string, string[]>}
  */
 function buildChildrenMap(edges) {
@@ -159,7 +159,7 @@ function buildChildrenMap(edges) {
 
 /**
  * @param {string} nodeId
- * @param {import('./anthropicService.js').MapaConceptualData['edges']} edges
+ * @param {import('./mapaGeminiService.js').MapaConceptualData['edges']} edges
  * @returns {string | null}
  */
 function findParentId(nodeId, edges) {
