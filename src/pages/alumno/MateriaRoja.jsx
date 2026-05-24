@@ -17,6 +17,7 @@ export default function MateriaRoja() {
   const navigate = useNavigate();
 
   const [mensajeCompleto, setMensajeCompleto] = useState(false);
+  const [quizRespondido, setQuizRespondido] = useState(false);
 
   const materia = getMateriaAlumnoById(id);
   const alumno = getAlumnoEnMateria(session?.boleta, id);
@@ -95,19 +96,56 @@ export default function MateriaRoja() {
 
           {/* Resource buttons — revealed once typewriter completes */}
           {mensajeCompleto && (
-            <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
-              <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
-                Recursos de apoyo preparados para ti
-              </h3>
-              <BotonPrimario variant="primary" className="w-full justify-center">
-                Ver guía de estudio
-              </BotonPrimario>
-              <BotonPrimario variant="ghost" className="w-full justify-center">
-                Becas IPN disponibles
-              </BotonPrimario>
-              <BotonPrimario variant="ghost" className="w-full justify-center">
-                Psicología estudiantil
-              </BotonPrimario>
+            <div className="flex flex-col gap-md">
+              {!quizRespondido ? (
+                <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
+                  <h3 className="font-display text-base font-semibold text-ink-deep">
+                    Cuestionario Diagnóstico
+                  </h3>
+                  <p className="font-ui text-sm text-on-dark-muted">
+                    Tu profesor quiere conocer mejor tu situación para darte apoyo personalizado. Solo toma 3 minutos.
+                  </p>
+                  <BotonPrimario
+                    variant="primary"
+                    className="w-full justify-center"
+                    onClick={() => {
+                      const url = 'https://forms.office.com/Pages/ResponsePage.aspx?id=2fRL-ZeAlEet9qVGbKKFY3P5AuTpSp1Mla03QS3vIkVUNEUxVUxRODY3NkNQSDFSU05NUzk5WFBTWS4u';
+                      window.open(url, '_blank');
+                      setTimeout(() => setQuizRespondido(true), 1500);
+                    }}
+                  >
+                    📋 Responder cuestionario
+                  </BotonPrimario>
+                </div>
+              ) : (
+                <>
+                  <div className="bg-surface-night border border-hairline-violet bg-riesgo-bajo/10 border-riesgo-bajo/30 rounded-xl p-xl flex flex-col gap-md">
+                    <div className="flex items-center gap-sm">
+                      <span className="text-riesgo-bajo text-lg">✅</span>
+                      <h3 className="font-display text-base font-semibold text-ink-deep">
+                        ¡Cuestionario enviado!
+                      </h3>
+                    </div>
+                    <p className="font-ui text-sm text-on-dark-muted">
+                      El Dr. Ramírez ya recibió tus respuestas. Recibirás tu guía personalizada pronto.
+                    </p>
+                  </div>
+                  <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl flex flex-col gap-md">
+                    <h3 className="font-display text-base font-semibold text-ink-deep mb-xs">
+                      Recursos de apoyo preparados para ti
+                    </h3>
+                    <BotonPrimario variant="primary" className="w-full justify-center">
+                      Ver guía de estudio
+                    </BotonPrimario>
+                    <BotonPrimario variant="ghost" className="w-full justify-center">
+                      Becas IPN disponibles
+                    </BotonPrimario>
+                    <BotonPrimario variant="ghost" className="w-full justify-center">
+                      Psicología estudiantil
+                    </BotonPrimario>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
