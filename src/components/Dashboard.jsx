@@ -1,454 +1,179 @@
 import {
-  Area,
-  AreaChart,
-  Bar,
   BarChart,
-  CartesianGrid,
-  Cell,
-  LabelList,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  PolarAngleAxis,
-  PolarGrid,
-  Radar,
-  RadarChart,
-  ReferenceLine,
+  Bar,
   XAxis,
   YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
 } from 'recharts';
-import {
-  getAsistenciaSemanal,
-  getCalificacionesPorTarea,
-  getDominioPorTema,
-  getEstadoEntregas,
-  getFactoresRiesgo,
-  getMateriaIdByBoleta,
-  getTendenciaConGrupo,
-} from '../services/mockData.js';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card.jsx';
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from './ui/chart.jsx';
+import { getTendencia, getFactoresRiesgo } from '../services/mockData.js';
 
-const COLOR_APROBADO = '#4fe97a';
-const COLOR_REPROBADO = '#e94f4f';
-const COLOR_NO_ENTREGADA = '#94A3B8';
-const COLOR_VIOLET = '#8B5CF6';
-const COLOR_LIME = '#F59E0B';
-const COLOR_RIESGO = '#e94f4f';
-const MIN_APROBATORIO = 6;
+// Design-token hex values used as recharts color props (cannot use Tailwind classes inside SVG attrs)
+const COLOR_LIME   = '#a8d0f0'; // accent-lime
+const COLOR_VIOLET = '#7ba7d4'; // accent-violet
+const COLOR_RIESGO = '#E94F4F'; // riesgo-alto
 
-function getTaskBarColor(tarea) {
-  if (!tarea.entregada) return COLOR_NO_ENTREGADA;
-  if (tarea.calificacion >= MIN_APROBATORIO) return COLOR_APROBADO;
-  return COLOR_REPROBADO;
+/**
+ * Parses "60%" → 60
+ */
+function parsePercent(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace('%', ''));
 }
 
-function ChartCard({ title, description, children, className = '' }) {
+/**
+ * Parses "4/8" → 50  (returns percentage)
+ */
+function parseFraction(str) {
+  if (!str) return 0;
+  const [num, den] = str.split('/').map(Number);
+  if (!den) return 0;
+  return Math.round((num / den) * 100);
+}
+
+/**
+ * Custom tooltip styling for Recharts.
+ */
+function CustomTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
+    <div className="bg-surface-night border border-hairline-violet rounded-md px-md py-sm text-sm font-ui">
+      <p className="text-on-dark-muted mb-xs">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.dataKey} style={{ color: entry.color }}>
+          {entry.name}: <span className="font-bold">{entry.value}%</span>
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function CustomLineTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-surface-night border border-hairline-violet rounded-md px-md py-sm text-sm font-ui">
+      <p className="text-on-dark-muted mb-xs">{label}</p>
+      <p style={{ color: COLOR_RIESGO }}>
+        Calificación: <span className="font-bold">{payload[0]?.value}</span>
+      </p>
+    </div>
   );
 }
 
 /**
- * Academic dashboard with shadcn chart components.
+ * Reusable academic dashboard.
  * Props:
- *   alumno    — student object
- *   materiaId — subject id for granular data (defaults to first enrollment)
- *   factores  — risk factor labels (chips)
- *   showTrend — kept for compatibility; trend chart always shown when alumno exists
+ *   alumno    — student object with boleta, asistencia, tareas_entregadas, etc.
+ *   factores  — string[] of risk factor labels to display as chips
+ *   showTrend — whether to render the grade trend LineChart (default: false)
  */
-export default function Dashboard({
-  alumno,
-  materiaId: materiaIdProp,
-  factores = [],
-  showTrend = true,
-}) {
+export default function Dashboard({ alumno, factores = [], showTrend = false }) {
   if (!alumno) return null;
 
-  const materiaId = materiaIdProp ?? getMateriaIdByBoleta(alumno.boleta);
-
-  const tareas = getCalificacionesPorTarea(alumno.boleta, materiaId);
-  const dominioPorTema = getDominioPorTema(alumno.boleta, materiaId);
-  const asistenciaSemanal = getAsistenciaSemanal(alumno.boleta, materiaId).map((row) => ({
-    semana: row.semana,
-    asistencia: Math.round((row.asistio / row.total) * 100),
-    asistio: row.asistio,
-    total: row.total,
-  }));
-  const tendenciaConGrupo = getTendenciaConGrupo(alumno.boleta, materiaId);
-  const estadoEntregas = getEstadoEntregas(alumno.boleta, materiaId);
-  const riskFactors = factores.length > 0 ? factores : getFactoresRiesgo(alumno.boleta);
-
-  const tareasChartData = tareas.map((tarea) => ({
-    tarea: `T${tarea.id}`,
-    nombre: tarea.nombre,
-    calificacion: tarea.entregada && tarea.calificacion != null ? tarea.calificacion : 0,
-    entregada: tarea.entregada,
-    fill: getTaskBarColor(tarea),
-  }));
-
-  const entregasChartData = [
-    { estado: 'aprobadas', cantidad: estadoEntregas.aprobadas, fill: 'var(--color-aprobadas)' },
-    { estado: 'reprobadas', cantidad: estadoEntregas.reprobadas, fill: 'var(--color-reprobadas)' },
-    { estado: 'noEntregadas', cantidad: estadoEntregas.noEntregadas, fill: 'var(--color-noEntregadas)' },
-  ].filter((item) => item.cantidad > 0);
-
-  const parcialChartData = [
-    {
-      periodo: 'Parcial anterior',
-      calificacion: alumno.calificacion_parcial_anterior,
-    },
-    {
-      periodo: 'Parcial actual',
-      calificacion: alumno.calificacion_actual,
-    },
+  const asistenciaVal  = parsePercent(alumno.asistencia);
+  const tareasVal      = parseFraction(alumno.tareas_entregadas);
+  const barData = [
+    { name: 'Asistencia',  asistencia: asistenciaVal },
+    { name: 'Tareas',      tareas: tareasVal },
   ];
 
-  const radarConfig = {
-    promedio: { label: 'Promedio', color: COLOR_VIOLET },
-  };
-
-  const tareasConfig = {
-    calificacion: { label: 'Calificación', color: COLOR_VIOLET },
-  };
-
-  const asistenciaConfig = {
-    asistencia: { label: 'Asistencia', color: COLOR_LIME },
-  };
-
-  const tendenciaConfig = {
-    calificacion: { label: 'Alumno', color: COLOR_RIESGO },
-    promedioGrupo: { label: 'Promedio del grupo', color: COLOR_VIOLET },
-  };
-
-  const entregasConfig = {
-    aprobadas: { label: 'Aprobadas', color: COLOR_APROBADO },
-    reprobadas: { label: 'Reprobadas', color: COLOR_REPROBADO },
-    noEntregadas: { label: 'No entregadas', color: COLOR_NO_ENTREGADA },
-  };
-
-  const parcialConfig = {
-    calificacion: { label: 'Calificación', color: COLOR_VIOLET },
-  };
+  const trendData    = getTendencia(alumno.boleta);
+  const riskFactors  = factores.length > 0 ? factores : getFactoresRiesgo(alumno.boleta);
 
   return (
     <div className="flex flex-col gap-xl">
-      {/* Row 1: Radar + Donut */}
-      <div className="grid gap-xl lg:grid-cols-[1.4fr_1fr]">
-        <ChartCard
-          title="Dominio por tema"
-          description="Promedio por área temática — identifica en qué unidades falla el alumno"
-        >
-          <ChartContainer config={radarConfig} className="mx-auto aspect-square max-h-[280px]">
-            <RadarChart data={dominioPorTema}>
-              <PolarGrid stroke="#E2E8F0" />
-              <PolarAngleAxis
-                dataKey="tema"
-                tick={{ fill: '#64748B', fontSize: 11, fontFamily: 'Rubik' }}
-              />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    formatter={(value) => [`${value}`, 'Promedio']}
-                  />
-                }
-              />
-              <Radar
-                dataKey="promedio"
-                stroke="var(--color-promedio)"
-                fill="var(--color-promedio)"
-                fillOpacity={0.35}
-                strokeWidth={2}
-              />
-            </RadarChart>
-          </ChartContainer>
-        </ChartCard>
-
-        <ChartCard
-          title="Estado de entregas"
-          description={`${estadoEntregas.total} tareas en el parcial`}
-        >
-          <ChartContainer config={entregasConfig} className="mx-auto aspect-square max-h-[280px]">
-            <PieChart>
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    nameKey="estado"
-                    formatter={(value, name) => {
-                      const labels = {
-                        aprobadas: 'Aprobadas',
-                        reprobadas: 'Reprobadas',
-                        noEntregadas: 'No entregadas',
-                      };
-                      return [`${value} tareas`, labels[name] ?? name];
-                    }}
-                  />
-                }
-              />
-              <Pie
-                data={entregasChartData}
-                dataKey="cantidad"
-                nameKey="estado"
-                innerRadius={55}
-                outerRadius={90}
-                strokeWidth={2}
-                stroke="#FFFFFF"
-              >
-                {entregasChartData.map((entry) => (
-                  <Cell key={entry.estado} fill={entry.fill} />
-                ))}
-                <LabelList
-                  dataKey="cantidad"
-                  className="fill-ink-deep font-ui text-xs"
-                  stroke="none"
-                  formatter={(value) => (value > 0 ? value : '')}
-                />
-              </Pie>
-              <ChartLegend content={<ChartLegendContent nameKey="estado" />} />
-            </PieChart>
-          </ChartContainer>
-        </ChartCard>
-      </div>
-
-      {/* Row 2: Bar chart per task (full width) */}
-      <ChartCard
-        title="Calificación por tarea"
-        description="Evolución cronológica — verde ≥6, rojo <6, gris = no entregada"
-      >
-        <ChartContainer config={tareasConfig} className="aspect-[2/1] max-h-[260px] w-full">
-          <BarChart data={tareasChartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="4 4" />
+      {/* ── Section 1: Bar chart ── */}
+      <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl">
+        <h3 className="font-display text-ink-deep font-semibold mb-lg">
+          Indicadores académicos
+        </h3>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={barData} barCategoryGap="30%" barGap={4}>
             <XAxis
-              dataKey="tarea"
-              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
+              dataKey="name"
+              tick={{ fill: '#555555', fontSize: 13, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              domain={[0, 10]}
-              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
+              domain={[0, 100]}
+              tick={{ fill: '#555555', fontSize: 12, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
+              tickFormatter={(v) => `${v}%`}
             />
-            <ReferenceLine
-              y={MIN_APROBATORIO}
-              stroke={COLOR_RIESGO}
-              strokeDasharray="4 4"
-              label={{
-                value: 'Mín. 6.0',
-                position: 'insideTopRight',
-                fill: COLOR_RIESGO,
-                fontSize: 11,
-              }}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(_, payload) => payload?.[0]?.payload?.nombre ?? ''}
-                  formatter={(value, _name, item) => {
-                    if (!item.payload.entregada) return ['No entregada', 'Estado'];
-                    return [`${value}`, 'Calificación'];
-                  }}
-                />
-              }
-            />
-            <Bar dataKey="calificacion" radius={[4, 4, 0, 0]}>
-              {tareasChartData.map((entry) => (
-                <Cell key={entry.tarea} fill={entry.fill} />
-              ))}
-            </Bar>
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(91,155,213,0.12)' }} />
+            <Bar dataKey="asistencia" name="Asistencia" fill={COLOR_LIME}  radius={[4, 4, 0, 0]} />
+            <Bar dataKey="tareas"     name="Tareas"     fill={COLOR_VIOLET} radius={[4, 4, 0, 0]} />
           </BarChart>
-        </ChartContainer>
-        <div className="mt-md flex flex-wrap gap-lg font-ui text-xs text-on-dark-muted">
-          <span className="flex items-center gap-xs">
-            <span className="inline-block h-3 w-3 rounded-xs" style={{ background: COLOR_APROBADO }} />
-            Aprobada (≥6)
+        </ResponsiveContainer>
+
+        {/* Legend */}
+        <div className="flex gap-lg mt-md">
+          <span className="flex items-center gap-xs font-ui text-xs text-on-dark-muted">
+            <span className="w-3 h-3 rounded-xs inline-block" style={{ background: COLOR_LIME }} />
+            Asistencia
           </span>
-          <span className="flex items-center gap-xs">
-            <span className="inline-block h-3 w-3 rounded-xs" style={{ background: COLOR_REPROBADO }} />
-            Reprobada (&lt;6)
-          </span>
-          <span className="flex items-center gap-xs">
-            <span className="inline-block h-3 w-3 rounded-xs" style={{ background: COLOR_NO_ENTREGADA }} />
-            No entregada
+          <span className="flex items-center gap-xs font-ui text-xs text-on-dark-muted">
+            <span className="w-3 h-3 rounded-xs inline-block" style={{ background: COLOR_VIOLET }} />
+            Tareas entregadas
           </span>
         </div>
-      </ChartCard>
-
-      {/* Row 3: Area + Line */}
-      <div className="grid gap-xl lg:grid-cols-2">
-        <ChartCard
-          title="Asistencia semanal"
-          description="Patrón de inasistencias a lo largo del parcial"
-        >
-          <ChartContainer config={asistenciaConfig} className="aspect-[4/3] max-h-[240px] w-full">
-            <AreaChart data={asistenciaSemanal}>
-              <defs>
-                <linearGradient id="fillAsistencia" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={COLOR_LIME} stopOpacity={0.45} />
-                  <stop offset="95%" stopColor={COLOR_LIME} stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="4 4" />
-              <XAxis
-                dataKey="semana"
-                tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                domain={[0, 100]}
-                tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v) => `${v}%`}
-              />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    formatter={(value, _name, item) => [
-                      `${value}% (${item.payload.asistio}/${item.payload.total} clases)`,
-                      'Asistencia',
-                    ]}
-                  />
-                }
-              />
-              <Area
-                type="monotone"
-                dataKey="asistencia"
-                stroke={COLOR_LIME}
-                fill="url(#fillAsistencia)"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ChartContainer>
-        </ChartCard>
-
-        {showTrend && (
-          <ChartCard
-            title="Tendencia vs promedio del grupo"
-            description="Compara el rendimiento individual con el resto del grupo"
-          >
-            <ChartContainer config={tendenciaConfig} className="aspect-[4/3] max-h-[240px] w-full">
-              <LineChart data={tendenciaConGrupo}>
-                <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="4 4" />
-                <XAxis
-                  dataKey="semana"
-                  tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  domain={[0, 10]}
-                  tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <ReferenceLine
-                  y={MIN_APROBATORIO}
-                  stroke={COLOR_RIESGO}
-                  strokeDasharray="4 4"
-                />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Line
-                  type="monotone"
-                  dataKey="calificacion"
-                  stroke="var(--color-calificacion)"
-                  strokeWidth={2.5}
-                  dot={{ fill: COLOR_RIESGO, r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="promedioGrupo"
-                  stroke="var(--color-promedioGrupo)"
-                  strokeWidth={2}
-                  strokeDasharray="6 4"
-                  dot={{ fill: COLOR_VIOLET, r: 3 }}
-                />
-              </LineChart>
-            </ChartContainer>
-          </ChartCard>
-        )}
       </div>
 
-      {/* Row 4: Partial comparison */}
-      <ChartCard
-        title="Parcial anterior vs actual"
-        description={`Declive de ${alumno.declive > 0 ? '+' : ''}${alumno.declive} puntos`}
-      >
-        <ChartContainer config={parcialConfig} className="aspect-[3/1] max-h-[200px] w-full">
-          <BarChart data={parcialChartData} barCategoryGap="35%">
-            <CartesianGrid vertical={false} stroke="#E2E8F0" strokeDasharray="4 4" />
-            <XAxis
-              dataKey="periodo"
-              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
+      {/* ── Section 2: Trend line (optional) ── */}
+      {showTrend && (
+        <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl">
+          <h3 className="font-display text-ink-deep font-semibold mb-lg">
+            Tendencia de calificación
+          </h3>
+          <ResponsiveContainer width="100%" height={180}>
+            <LineChart data={trendData}>
+              <XAxis
+                dataKey="semana"
+              tick={{ fill: '#555555', fontSize: 12, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[0, 10]}
-              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <ReferenceLine y={MIN_APROBATORIO} stroke={COLOR_RIESGO} strokeDasharray="4 4" />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar
-              dataKey="calificacion"
-              fill="var(--color-calificacion)"
-              radius={[6, 6, 0, 0]}
-            >
-              {parcialChartData.map((entry) => (
-                <Cell
-                  key={entry.periodo}
-                  fill={
-                    entry.periodo === 'Parcial actual' && entry.calificacion < MIN_APROBATORIO
-                      ? COLOR_RIESGO
-                      : entry.periodo === 'Parcial actual'
-                        ? COLOR_VIOLET
-                        : COLOR_LIME
-                  }
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      </ChartCard>
+              tick={{ fill: '#555555', fontSize: 12, fontFamily: 'Rubik' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip content={<CustomLineTooltip />} cursor={{ stroke: 'rgba(233,79,79,0.3)' }} />
+              <Line
+                type="monotone"
+                dataKey="calificacion"
+                stroke={COLOR_RIESGO}
+                strokeWidth={2.5}
+                dot={{ fill: COLOR_RIESGO, r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
-      {/* Row 5: Risk factors */}
+      {/* ── Section 3: Risk factor chips ── */}
       {riskFactors.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Factores de riesgo detectados</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex flex-wrap gap-sm">
-              {riskFactors.map((factor) => (
-                <span
-                  key={factor}
-                  className="rounded-xs border border-riesgo-alto/30 bg-riesgo-alto/20 px-sm py-xs font-ui text-sm text-riesgo-alto"
-                >
-                  {factor}
-                </span>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-surface-night border border-hairline-violet rounded-xl p-xl">
+          <h3 className="font-display text-ink-deep font-semibold mb-md">
+            Factores de riesgo detectados
+          </h3>
+          <div className="flex flex-wrap gap-sm">
+            {riskFactors.map((factor) => (
+              <span
+                key={factor}
+                className="bg-riesgo-alto/20 text-riesgo-alto border border-riesgo-alto/30 rounded-xs px-sm py-xs text-sm font-ui"
+              >
+                {factor}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
