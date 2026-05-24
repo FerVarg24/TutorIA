@@ -416,6 +416,15 @@
   animation: chat-online-pulse 1.8s ease-in-out infinite;
 }
 
+@keyframes typewriter-cursor-blink {
+  0%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+
+.typewriter-cursor {
+  animation: typewriter-cursor-blink 1s ease-in-out infinite;
+}
+
 /* Chat avatar status rings */
 .chat-avatar {
   position: relative;
