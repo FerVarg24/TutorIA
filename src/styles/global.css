@@ -1,40 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand & accent */
-  --color-primary: #4F46E5;
-  --color-ink-deep: #0F172A;
+  /* Brand & accent (DESIGN.md) */
+  --color-primary: #5b9bd5;
+  --color-ink-deep: #1a1a1a;
   --color-on-primary: #ffffff;
-  --color-accent-lime: #F59E0B;
-  --color-accent-pink: #EC4899;
-  --color-accent-violet: #8B5CF6;
-  --color-accent-violet-deep: #6D28D9;
-  --color-accent-violet-mid: #A78BFA;
+  --color-accent-lime: #a8d0f0;
+  --color-accent-pink: #c9b8f0;
+  --color-accent-violet: #7ba7d4;
+  --color-accent-violet-deep: #4a7fb5;
+  --color-accent-violet-mid: #8ab3d9;
 
-  /* Surfaces */
-  --color-surface-canvas-dark: #F8FAFC;
-  --color-surface-canvas-light: #FFFFFF;
-  --color-surface-night: #FFFFFF;
-  --color-surface-press-light: #EEF2FF;
-  --color-surface-press-stronger: #E0E7FF;
+  /* Surfaces (DESIGN.md) */
+  --color-surface-canvas-dark: #ffffff;
+  --color-surface-canvas-light: #ffffff;
+  --color-surface-night: #ffffff;
+  --color-surface-press-light: #ddeaf8;
+  --color-surface-press-stronger: #cce0f5;
 
-  /* Hairlines */
-  --color-hairline-violet: #E2E8F0;
-  --color-hairline-cool: #CBD5E1;
-  --color-hairline-cloud: #E5E7EB;
+  /* Hairlines (DESIGN.md) */
+  --color-hairline-violet: #c5d9ef;
+  --color-hairline-cool: #d4d4d4;
+  --color-hairline-cloud: #e5e7eb;
 
-  /* Text */
-  --color-ink: #1E293B;
-  --color-ink-press: #020617;
-  --color-on-dark-muted: #64748B;
-  --color-on-dark-faint: #94A3B8;
-  --color-ring-focus: #818CF8;
+  /* Text (DESIGN.md) */
+  --color-ink: #1a1a1a;
+  --color-ink-press: #000000;
+  --color-on-dark-muted: #555555;
+  --color-on-dark-faint: #b8d0e8;
+  --color-ring-focus: rgba(59, 130, 246, 0.5);
 
   /* Semantic risk — Context.md */
-  --color-riesgo-alto: #e94f4f;
-  --color-riesgo-medio: #e9a94f;
-  --color-riesgo-bajo: #4fe97a;
-  --color-iniciativa-alumno: #9b4fe9;
+  --color-riesgo-alto: #E94F4F;
+  --color-riesgo-medio: #E9A94F;
+  --color-riesgo-bajo: #4FE97A;
+  --color-iniciativa-alumno: #9B4FE9;
 
   /* Typography */
   --font-display: "Space Grotesk", system-ui, sans-serif;
@@ -183,9 +183,9 @@
 .landing-gradient {
   background: linear-gradient(
     135deg,
-    #EEF2FF,
-    #F8FAFC,
-    #E0E7FF
+    #ffffff,
+    #f5f8ff,
+    #eaf1fb
   );
   background-size: 400% 400%;
   animation: landing-gradient 12s ease infinite;

@@ -11,9 +11,9 @@ import {
 import { getTendencia, getFactoresRiesgo } from '../services/mockData.js';
 
 // Design-token hex values used as recharts color props (cannot use Tailwind classes inside SVG attrs)
-const COLOR_LIME   = '#F59E0B'; // accent-lime (amber)
-const COLOR_VIOLET = '#8B5CF6'; // accent-violet (violet)
-const COLOR_RIESGO = '#e94f4f'; // riesgo-alto
+const COLOR_LIME   = '#a8d0f0'; // accent-lime
+const COLOR_VIOLET = '#7ba7d4'; // accent-violet
+const COLOR_RIESGO = '#E94F4F'; // riesgo-alto
 
 /**
  * Parses "60%" → 60
@@ -93,18 +93,18 @@ export default function Dashboard({ alumno, factores = [], showTrend = false }) 
           <BarChart data={barData} barCategoryGap="30%" barGap={4}>
             <XAxis
               dataKey="name"
-              tick={{ fill: '#64748B', fontSize: 13, fontFamily: 'Rubik' }}
+              tick={{ fill: '#555555', fontSize: 13, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
+              tick={{ fill: '#555555', fontSize: 12, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => `${v}%`}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(139,92,246,0.1)' }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(91,155,213,0.12)' }} />
             <Bar dataKey="asistencia" name="Asistencia" fill={COLOR_LIME}  radius={[4, 4, 0, 0]} />
             <Bar dataKey="tareas"     name="Tareas"     fill={COLOR_VIOLET} radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -133,13 +133,13 @@ export default function Dashboard({ alumno, factores = [], showTrend = false }) 
             <LineChart data={trendData}>
               <XAxis
                 dataKey="semana"
-              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
+              tick={{ fill: '#555555', fontSize: 12, fontFamily: 'Rubik' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[0, 10]}
-              tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Rubik' }}
+              tick={{ fill: '#555555', fontSize: 12, fontFamily: 'Rubik' }}
                 axisLine={false}
                 tickLine={false}
               />
