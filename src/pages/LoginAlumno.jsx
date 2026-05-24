@@ -1,104 +1,165 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BotonPrimario from '../components/BotonPrimario.jsx';
 import { useApp } from '../context/AppContext.jsx';
+import BotonPrimario from '../components/BotonPrimario.jsx';
 import { USUARIOS_ALUMNO } from '../services/mockData.js';
 
-function SimpleCaptcha({ value, onChange, onValidate }) {
-  const [a, b] = useMemo(() => [Math.floor(Math.random() * 9) + 1, Math.floor(Math.random() * 9) + 1], []);
-  const expected = a + b;
-
-  useEffect(() => {
-    onValidate(Number(value) === expected);
-  }, [value, expected, onValidate]);
-
-  return (
-    <label className="mb-xl block">
-      <span className="mb-sm block text-sm text-on-dark-muted">
-        CAPTCHA: ¿Cuánto es {a} + {b}?
-      </span>
-      <input
-        type="number"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-sm border border-hairline-cool bg-surface-canvas-light px-md py-sm text-ink-deep"
-        required
-      />
-    </label>
-  );
+/** Generates a random integer in [min, max] inclusive. */
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 export default function LoginAlumno() {
+  const { setMascota, login } = useApp();
   const navigate = useNavigate();
-  const { login, setMascota } = useApp();
+
   const [boleta, setBoleta] = useState('');
   const [password, setPassword] = useState('');
-  const [captcha, setCaptcha] = useState('');
-  const [captchaValid, setCaptchaValid] = useState(false);
+  const [captchaRespuesta, setCaptchaRespuesta] = useState('');
   const [error, setError] = useState('');
 
+  // Generate CAPTCHA once on mount; store operands in a ref to avoid regeneration on re-renders
+  const captchaRef = useRef({
+    a: randomInt(1, 9),
+    b: randomInt(1, 9),
+  });
+  const { a, b } = captchaRef.current;
+  const captchaEsperado = a + b;
+
+  // Trigger mascot bounce on mount
   useEffect(() => {
     setMascota({ modo: 'bounce', mensaje: '' });
   }, [setMascota]);
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    if (!captchaValid) {
-      setError('CAPTCHA incorrecto');
+    setError('');
+
+    // Validate CAPTCHA first
+    if (parseInt(captchaRespuesta, 10) !== captchaEsperado) {
+      setError('Respuesta del captcha incorrecta');
       return;
     }
 
+    // Validate credentials
     const user = USUARIOS_ALUMNO.find(
-      (u) => u.boleta === boleta && u.password === password,
+      (u) => u.boleta === boleta.trim() && u.password === password
     );
 
-    if (!user) {
-      setError('Credenciales incorrectas');
-      return;
+    if (user) {
+      login({ ...user, rol: 'alumno' });
+      navigate('/alumno/materias');
+    } else {
+      setError('Boleta o contraseña incorrecta');
     }
-
-    login({ ...user, rol: 'alumno' });
-    navigate('/alumno/materias');
-  };
+  }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-surface-canvas-dark px-xl">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-xxl border border-hairline-violet bg-ink-deep p-xxl"
+    <div className="min-h-screen flex flex-col items-center justify-center bg-surface-canvas-dark px-lg">
+      <div className="w-full max-w-[24rem] bg-surface-night border border-hairline-violet rounded-xl p-xxl">
+        {/* Header */}
+        <p className="font-display text-on-dark-muted text-xs uppercase tracking-widest mb-md text-center">
+          TutorIA
+        </p>
+        <h1 className="font-display text-on-primary text-2xl text-center mb-xl">
+          Acceso Alumno
+        </h1>
+
+        {/* Login form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-lg" noValidate>
+          <div className="flex flex-col gap-sm">
+            <label
+              htmlFor="boleta"
+              className="font-ui text-on-dark-muted text-sm"
+            >
+              Número de boleta
+            </label>
+            <input
+              id="boleta"
+              type="text"
+              inputMode="numeric"
+              autoComplete="username"
+              required
+              value={boleta}
+              onChange={(e) => setBoleta(e.target.value)}
+              placeholder="2021630001"
+              className="bg-ink-deep border border-hairline-violet rounded-md px-lg py-md text-on-primary font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-accent-violet transition-colors"
+            />
+          </div>
+
+          <div className="flex flex-col gap-sm">
+            <label
+              htmlFor="password-alumno"
+              className="font-ui text-on-dark-muted text-sm"
+            >
+              Contraseña
+            </label>
+            <input
+              id="password-alumno"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="bg-ink-deep border border-hairline-violet rounded-md px-lg py-md text-on-primary font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-accent-violet transition-colors"
+            />
+          </div>
+
+          {/* Arithmetic CAPTCHA */}
+          <div className="flex flex-col gap-sm">
+            <label
+              htmlFor="captcha"
+              className="font-ui text-on-dark-muted text-sm"
+            >
+              Verificación: ¿Cuánto es{' '}
+              <span className="text-accent-lime font-bold">
+                {a} + {b}
+              </span>
+              ?
+            </label>
+            <input
+              id="captcha"
+              type="text"
+              inputMode="numeric"
+              required
+              value={captchaRespuesta}
+              onChange={(e) => setCaptchaRespuesta(e.target.value)}
+              placeholder="Tu respuesta"
+              className="bg-ink-deep border border-hairline-violet rounded-md px-lg py-md text-on-primary font-ui text-sm placeholder:text-on-dark-faint focus:outline-none focus:border-accent-violet transition-colors"
+            />
+          </div>
+
+          {/* Inline error message */}
+          {error && (
+            <p role="alert" className="font-ui text-riesgo-alto text-sm text-center">
+              {error}
+            </p>
+          )}
+
+          <BotonPrimario
+            variant="inverted"
+            type="submit"
+            className="w-full py-lg mt-sm"
+          >
+            Entrar
+          </BotonPrimario>
+        </form>
+
+        {/* Demo hint */}
+        <p className="font-ui text-on-dark-faint text-xs text-center mt-xl">
+          Demo: boleta 2021630001 / demo1234
+        </p>
+      </div>
+
+      {/* Back link */}
+      <button
+        type="button"
+        onClick={() => navigate('/')}
+        className="font-ui text-on-dark-muted text-sm mt-xl hover:text-on-primary transition-colors"
       >
-        <h1 className="mb-xl font-display text-2xl font-bold text-on-primary">Login Alumno</h1>
-
-        {error && <p className="mb-lg text-sm text-riesgo-alto">{error}</p>}
-
-        <label className="mb-lg block">
-          <span className="mb-sm block text-sm text-on-dark-muted">Número de boleta</span>
-          <input
-            type="text"
-            value={boleta}
-            onChange={(e) => setBoleta(e.target.value)}
-            className="w-full rounded-sm border border-hairline-cool bg-surface-canvas-light px-md py-sm text-ink-deep"
-            required
-          />
-        </label>
-
-        <label className="mb-lg block">
-          <span className="mb-sm block text-sm text-on-dark-muted">Contraseña</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-sm border border-hairline-cool bg-surface-canvas-light px-md py-sm text-ink-deep"
-            required
-          />
-        </label>
-
-        <SimpleCaptcha value={captcha} onChange={setCaptcha} onValidate={setCaptchaValid} />
-
-        <BotonPrimario type="submit" className="w-full" disabled={!captchaValid}>
-          Ingresar
-        </BotonPrimario>
-      </form>
-    </main>
+        ← Volver al inicio
+      </button>
+    </div>
   );
 }

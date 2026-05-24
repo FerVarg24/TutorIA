@@ -2,49 +2,87 @@ import { useState } from 'react';
 import BotonPrimario from '../../components/BotonPrimario.jsx';
 import Reporte from './Reporte.jsx';
 
+/**
+ * Modal overlay that walks the professor through the follow-up flow.
+ * Rendered inside AlumnoDetalle, not on its own route.
+ *
+ * Props:
+ *   alumno  — student object
+ *   onClose — callback to close the modal
+ */
 export default function Seguimiento({ alumno, onClose }) {
-  const [step, setStep] = useState('confirm');
+  const [paso, setPaso] = useState('confirm'); // 'confirm' | 'sent'
   const [showReporte, setShowReporte] = useState(false);
-
-  const handleConfirm = () => {
-    setStep('sent');
-  };
-
-  const handleVerRespuestas = () => {
-    setShowReporte(true);
-  };
 
   return (
     <>
-      <div className="fixed inset-0 z-40 flex items-center justify-center bg-primary/80 p-xl">
-        <div className="w-full max-w-lg rounded-xxl border border-hairline-violet bg-ink-deep p-xxl">
-          {step === 'confirm' && (
+      {/* Overlay + centered card */}
+      <div className="fixed inset-0 bg-primary/80 z-50 flex items-center justify-center p-xl">
+        <div className="bg-surface-night border border-hairline-violet rounded-xl p-xxl max-w-[32rem] w-full">
+
+          {paso === 'confirm' && (
             <>
-              <h2 className="mb-lg font-display text-xl font-medium text-on-primary">
-                Confirmar seguimiento
+              {/* Icon */}
+              <div className="w-12 h-12 rounded-full bg-accent-violet/20 border border-accent-violet/30 flex items-center justify-center mb-xl mx-auto">
+                <span className="text-xl" aria-hidden="true">📋</span>
+              </div>
+
+              <h2 className="font-display text-xl font-bold text-on-primary text-center mb-md">
+                Enviar cuestionario diagnóstico
               </h2>
-              <p className="mb-xxl text-on-dark-muted">
-                ¿Deseas enviarle un cuestionario diagnóstico a {alumno.nombre}?
+              <p className="font-ui text-on-dark-muted text-center mb-xxl leading-relaxed">
+                ¿Deseas enviarle un cuestionario diagnóstico a{' '}
+                <span className="text-on-primary font-semibold">{alumno?.nombre}</span>?<br />
+                Recibirá el link directamente en su cuenta de Teams.
               </p>
-              <div className="flex gap-lg">
-                <BotonPrimario onClick={handleConfirm}>Sí, enviar</BotonPrimario>
-                <BotonPrimario variant="ghost" onClick={onClose}>
+
+              <div className="flex flex-col gap-md">
+                <BotonPrimario
+                  variant="primary"
+                  className="w-full justify-center"
+                  onClick={() => setPaso('sent')}
+                >
+                  Sí, enviar cuestionario
+                </BotonPrimario>
+                <BotonPrimario
+                  variant="ghost"
+                  className="w-full justify-center"
+                  onClick={onClose}
+                >
                   No por ahora
                 </BotonPrimario>
               </div>
             </>
           )}
 
-          {step === 'sent' && (
+          {paso === 'sent' && (
             <>
-              <p className="mb-xxl text-on-primary">
-                Cuestionario enviado a {alumno.nombre} — recibirá el link por Teams
+              {/* Success icon */}
+              <div className="w-12 h-12 rounded-full bg-riesgo-bajo/20 border border-riesgo-bajo/30 flex items-center justify-center mb-xl mx-auto">
+                <span className="text-xl" aria-hidden="true">✅</span>
+              </div>
+
+              <h2 className="font-display text-xl font-bold text-on-primary text-center mb-md">
+                Cuestionario enviado
+              </h2>
+              <p className="font-ui text-on-dark-muted text-center mb-xxl leading-relaxed">
+                <span className="text-on-primary font-semibold">{alumno?.nombre}</span>{' '}
+                recibirá el link por Teams en breve.
               </p>
-              <div className="flex gap-lg">
-                <BotonPrimario onClick={handleVerRespuestas}>
+
+              <div className="flex flex-col gap-md">
+                <BotonPrimario
+                  variant="primary"
+                  className="w-full justify-center"
+                  onClick={() => setShowReporte(true)}
+                >
                   Ver respuestas del alumno
                 </BotonPrimario>
-                <BotonPrimario variant="ghost" onClick={onClose}>
+                <BotonPrimario
+                  variant="ghost"
+                  className="w-full justify-center"
+                  onClick={onClose}
+                >
                   Cerrar
                 </BotonPrimario>
               </div>
@@ -53,7 +91,10 @@ export default function Seguimiento({ alumno, onClose }) {
         </div>
       </div>
 
-      {showReporte && <Reporte alumno={alumno} onClose={() => setShowReporte(false)} />}
+      {/* Side panel — rendered on top of the overlay */}
+      {showReporte && (
+        <Reporte alumno={alumno} onClose={() => setShowReporte(false)} />
+      )}
     </>
   );
 }

@@ -220,3 +220,14 @@
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
+
+/* Split-layout pages: prevent body scroll on lg+ screens */
+@media (min-width: 1024px) {
+  .split-layout {
+    height: 100vh;
+    overflow: hidden;
+  }
+  .split-layout__col {
+    overflow-y: auto;
+  }
+}

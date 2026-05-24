@@ -1,37 +1,70 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BotonPrimario from '../components/BotonPrimario.jsx';
 import { useApp } from '../context/AppContext.jsx';
+import BotonPrimario from '../components/BotonPrimario.jsx';
 
 export default function LandingPage() {
-  const navigate = useNavigate();
   const { setMascota } = useApp();
+  const navigate = useNavigate();
 
+  // Trigger mascot entrance animation on mount
   useEffect(() => {
     setMascota({ modo: 'entrada-derecha', mensaje: '' });
   }, [setMascota]);
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-surface-canvas-dark px-xl">
-      <div className="landing-gradient absolute inset-0 -z-10" aria-hidden="true" />
-      <div className="landing-shapes absolute inset-0 -z-10" aria-hidden="true" />
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="landing-gradient absolute inset-0 -z-10" />
 
-      <h1 className="mb-xxl max-w-3xl text-center font-display text-5xl font-bold text-on-primary md:text-6xl">
-        Detecta el riesgo <span className="rounded-xs bg-accent-lime px-md text-ink-deep">antes</span> del parcial
-      </h1>
+      {/* Floating geometric shapes */}
+      <div className="landing-shapes absolute inset-0 -z-10" />
 
-      <p className="mb-section max-w-xl text-center text-lg text-on-dark-muted">
-        TutorIA acompaña a profesores y alumnos del IPN con intervención temprana dentro de Microsoft Teams.
+      {/* Logo / project name */}
+      <p className="font-display text-on-dark-muted text-sm uppercase tracking-widest mb-xl">
+        TutorIA — IPN
       </p>
 
-      <div className="flex flex-wrap justify-center gap-xl">
-        <BotonPrimario variant="inverted" onClick={() => navigate('/login/profesor')}>
+      {/* Main headline */}
+      <h1 className="font-display text-on-primary text-center leading-tight mb-lg"
+          style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', maxWidth: '720px' }}>
+        Detecta el riesgo{' '}
+        <span className="bg-accent-lime text-ink-deep px-xs rounded-sm">
+          antes
+        </span>{' '}
+        de que sea tarde
+      </h1>
+
+      {/* Subtitle */}
+      <p className="font-ui text-on-dark-muted text-center mb-xxl"
+         style={{ fontSize: '1.125rem', maxWidth: '480px' }}>
+        Intervención temprana basada en IA para apoyar a los estudiantes del IPN
+        antes de que termine el parcial.
+      </p>
+
+      {/* CTA buttons */}
+      <div className="flex gap-lg flex-wrap justify-center">
+        <BotonPrimario
+          variant="inverted"
+          className="px-xxl py-lg text-base"
+          onClick={() => navigate('/login/profesor')}
+        >
           Soy Profesor
         </BotonPrimario>
-        <BotonPrimario variant="ghost" onClick={() => navigate('/login/alumno')}>
+
+        <BotonPrimario
+          variant="ghost"
+          className="px-xxl py-lg text-base"
+          onClick={() => navigate('/login/alumno')}
+        >
           Soy Alumno
         </BotonPrimario>
       </div>
-    </main>
+
+      {/* Hackathon badge */}
+      <p className="font-ui text-on-dark-faint text-xs mt-section text-center">
+        Hackathon Universitario de Impacto Social con AI · Microsoft México
+      </p>
+    </div>
   );
 }

@@ -1,60 +1,119 @@
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Navbar from '../../components/Navbar.jsx';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext.jsx';
 import { MATERIAS_ALUMNO } from '../../services/mockData.js';
+import Navbar from '../../components/Navbar.jsx';
 
-const ESTADO_STYLES = {
-  rojo: 'border-riesgo-alto bg-riesgo-alto/10',
-  morado: 'border-iniciativa-alumno bg-iniciativa-alumno/10',
-  verde: 'border-riesgo-bajo bg-riesgo-bajo/10',
+// Maps estado value to Tailwind border + background classes
+const ESTADO_CARD_CLASS = {
+  rojo: 'border-riesgo-alto bg-riesgo-alto/10 hover:bg-riesgo-alto/15',
+  morado: 'border-iniciativa-alumno bg-iniciativa-alumno/10 hover:bg-iniciativa-alumno/15',
+  verde: 'border-riesgo-bajo bg-riesgo-bajo/10 hover:bg-riesgo-bajo/15',
+};
+
+const ESTADO_BADGE_CLASS = {
+  rojo: 'bg-riesgo-alto/20 text-riesgo-alto border-riesgo-alto/30',
+  morado: 'bg-iniciativa-alumno/20 text-iniciativa-alumno border-iniciativa-alumno/30',
+  verde: 'bg-riesgo-bajo/20 text-riesgo-bajo border-riesgo-bajo/30',
+};
+
+const ESTADO_LABEL = {
+  rojo: 'Tu profesor envió apoyo',
+  morado: 'Anomalías detectadas',
+  verde: 'Sin anomalías',
 };
 
 export default function MateriasAlumno() {
-  const { setMascota } = useApp();
+  const { session, setMascota } = useApp();
+  const navigate = useNavigate();
+
+  // Tracks which materia id is showing the inline tooltip (verde cards only)
+  const [tooltipId, setTooltipId] = useState(null);
 
   useEffect(() => {
     setMascota({ modo: 'flotando', mensaje: '' });
   }, [setMascota]);
 
-  const handleClick = (materia, e) => {
-    if (materia.estado === 'verde') {
-      e.preventDefault();
+  // Auto-dismiss tooltip after 2.5 s
+  useEffect(() => {
+    if (!tooltipId) return;
+    const timer = setTimeout(() => setTooltipId(null), 2500);
+    return () => clearTimeout(timer);
+  }, [tooltipId]);
+
+  function handleCardClick(materia) {
+    if (materia.estado === 'rojo') {
+      navigate(`/alumno/materia/rojo/${materia.id}`);
+    } else if (materia.estado === 'morado') {
+      navigate(`/alumno/materia/morado/${materia.id}`);
+    } else {
+      setTooltipId(materia.id);
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-surface-canvas-dark">
       <Navbar title="Mis Materias" />
-      <main className="mx-auto max-w-4xl px-xl py-xxl">
-        <h1 className="mb-xxl font-display text-3xl font-bold text-on-primary">Mis Materias</h1>
 
-        <div className="grid gap-xl">
+      <main className="p-xl">
+        {/* Header */}
+        <div className="mb-xxl">
+          <h1 className="font-display text-3xl font-bold text-on-primary mb-xs">
+            Hola, {session?.nombre ?? 'estudiante'}
+          </h1>
+          <p className="font-ui text-on-dark-muted">
+            Aquí puedes ver el estado de tus materias este parcial.
+          </p>
+        </div>
+
+        {/* Subject cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-xl">
           {MATERIAS_ALUMNO.map((materia) => {
-            const href =
-              materia.estado === 'rojo'
-                ? `/alumno/materia/rojo/${materia.id}`
-                : materia.estado === 'morado'
-                  ? `/alumno/materia/morado/${materia.id}`
-                  : '#';
+            const cardClass = ESTADO_CARD_CLASS[materia.estado] ?? 'border-hairline-violet bg-surface-night';
+            const badgeClass = ESTADO_BADGE_CLASS[materia.estado] ?? '';
+            const showTooltip = tooltipId === materia.id;
 
             return (
-              <Link
+              <button
                 key={materia.id}
-                to={href}
-                onClick={(e) => handleClick(materia, e)}
-                title={
-                  materia.estado === 'verde'
-                    ? 'Sin anomalías detectadas esta semana'
-                    : undefined
-                }
-                className={`block rounded-xxl border-2 p-xxl transition-transform hover:scale-[1.01] ${ESTADO_STYLES[materia.estado]}`}
+                type="button"
+                onClick={() => handleCardClick(materia)}
+                className={`text-left border rounded-xl p-xl cursor-pointer transition-all group ${cardClass}`}
               >
-                <h2 className="mb-sm font-display text-xl font-medium text-on-primary">
-                  {materia.nombre}
-                </h2>
-                <p className="text-sm text-on-dark-muted">Prof. {materia.profesor}</p>
-              </Link>
+                {/* Top: name + estado badge */}
+                <div className="flex items-start justify-between gap-md mb-md">
+                  <h2 className="font-display text-lg font-semibold text-on-primary leading-snug">
+                    {materia.nombre}
+                  </h2>
+                  <span
+                    className={`shrink-0 border rounded-full px-sm py-xs text-xs font-bold font-ui whitespace-nowrap ${badgeClass}`}
+                  >
+                    {ESTADO_LABEL[materia.estado]}
+                  </span>
+                </div>
+
+                {/* Meta */}
+                <p className="font-ui text-sm text-on-dark-muted mb-xs">
+                  Profesor: <span className="text-on-primary font-medium">{materia.profesor}</span>
+                </p>
+                <p className="font-ui text-sm text-on-dark-muted mb-lg">
+                  Créditos: <span className="text-on-primary font-medium">{materia.creditos}</span>
+                </p>
+
+                {/* Tooltip for verde cards */}
+                {showTooltip && (
+                  <p className="font-ui text-xs text-riesgo-bajo font-medium animate-pulse mb-sm">
+                    Sin anomalías detectadas esta semana
+                  </p>
+                )}
+
+                {/* Footer hint */}
+                {materia.estado !== 'verde' && (
+                  <p className="font-ui text-xs text-on-dark-muted group-hover:text-on-primary transition-colors">
+                    {materia.estado === 'rojo' ? 'Ver apoyo de tu profesor →' : 'Hablar con el agente →'}
+                  </p>
+                )}
+              </button>
             );
           })}
         </div>
