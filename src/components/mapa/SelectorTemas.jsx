@@ -8,7 +8,11 @@ import BotonPrimario from '../BotonPrimario.jsx';
  *   onSeleccionar: (tema: string) => void,
  *   onConfirmar: () => void,
  *   cargando: boolean,
- *   mapaGenerado: boolean,
+ *   mapaGenerado?: boolean,
+ *   confirmado?: boolean,
+ *   confirmLabel?: string,
+ *   confirmLoadingLabel?: string,
+ *   subtitle?: string,
  * }} props
  */
 export default function SelectorTemas({
@@ -17,13 +21,18 @@ export default function SelectorTemas({
   onSeleccionar,
   onConfirmar,
   cargando,
-  mapaGenerado,
+  mapaGenerado = false,
+  confirmado,
+  confirmLabel = 'Generar mapa',
+  confirmLoadingLabel,
+  subtitle = 'Elige un tema para estudiar',
 }) {
+  const ocultarConfirmar = confirmado ?? mapaGenerado;
   return (
     <div className="bg-surface-night border border-hairline-violet rounded-xl p-lg flex flex-col gap-md">
       <div className="flex items-center justify-between gap-md flex-wrap">
         <p className="font-ui text-sm text-on-dark-muted">
-          Elige un tema para estudiar
+          {subtitle}
         </p>
         <div className="flex items-center gap-md text-xs font-ui text-on-dark-muted">
           <span className="flex items-center gap-xs">
@@ -66,14 +75,14 @@ export default function SelectorTemas({
         })}
       </div>
 
-      {!mapaGenerado && (
+      {!ocultarConfirmar && (
         <BotonPrimario
           variant="primary"
           className="self-start"
           disabled={!temaSeleccionado || cargando}
           onClick={onConfirmar}
         >
-          {cargando ? 'Generando mapa...' : 'Generar mapa'}
+          {cargando ? (confirmLoadingLabel ?? `Generando...`) : confirmLabel}
         </BotonPrimario>
       )}
     </div>

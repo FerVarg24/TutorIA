@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Area,
   AreaChart,
@@ -45,6 +47,17 @@ const COLOR_LIME = '#F59E0B';
 const COLOR_RIESGO = '#e94f4f';
 const MIN_APROBATORIO = 6;
 
+const CHART_ENTER_EASE = [0.22, 1, 0.36, 1];
+const CHART_STAGGER_DELAY = 0.12;
+const CHART_ENTER_DURATION = 0.55;
+
+const dashboardContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: CHART_STAGGER_DELAY },
+  },
+};
+
 function getTaskBarColor(tarea) {
   if (!tarea.entregada) return COLOR_NO_ENTREGADA;
   if (tarea.calificacion >= MIN_APROBATORIO) return COLOR_APROBADO;
@@ -90,6 +103,91 @@ function ChartCard({
   );
 }
 
+function ChartPlaceholder({ className }) {
+  return (
+    <div
+      className={cn('animate-pulse rounded-lg bg-surface-canvas-light/60', className)}
+      aria-hidden="true"
+    />
+  );
+}
+
+function useChartReveal() {
+  const reduceMotion = useReducedMotion();
+  const skipMotion = reduceMotion === true;
+  const [chartReady, setChartReady] = useState(skipMotion);
+
+  useEffect(() => {
+    setChartReady(skipMotion);
+  }, [skipMotion]);
+
+  const revealChart = () => {
+    setChartReady(true);
+  };
+
+  return { skipMotion, chartReady, revealChart };
+}
+
+function AnimatedChartCard({
+  index,
+  title,
+  description,
+  children,
+  className = '',
+  accent = 'radar',
+  featured = false,
+  chartClassName = '',
+}) {
+  const { skipMotion, chartReady, revealChart } = useChartReveal();
+
+  return (
+    <motion.div
+      initial={skipMotion ? false : { opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: CHART_ENTER_DURATION,
+        delay: skipMotion ? 0 : index * CHART_STAGGER_DELAY,
+        ease: CHART_ENTER_EASE,
+      }}
+      onAnimationComplete={skipMotion ? undefined : revealChart}
+    >
+      <ChartCard
+        title={title}
+        description={description}
+        accent={accent}
+        featured={featured}
+        className={className}
+      >
+        {chartReady ? children : <ChartPlaceholder className={chartClassName} />}
+      </ChartCard>
+    </motion.div>
+  );
+}
+
+function AnimatedSectionCard({ index, title, accent = 'riesgo', children }) {
+  const reduceMotion = useReducedMotion();
+  const skipMotion = reduceMotion === true;
+
+  return (
+    <motion.div
+      initial={skipMotion ? false : { opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: CHART_ENTER_DURATION,
+        delay: skipMotion ? 0 : index * CHART_STAGGER_DELAY,
+        ease: CHART_ENTER_EASE,
+      }}
+    >
+      <Card elevated className="min-w-0 w-full">
+        <CardHeader className={cn('rounded-t-xl', CHART_HEADER_GRADIENT[accent])}>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">{children}</CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
 /**
  * Academic dashboard with shadcn chart components.
  * Props:
@@ -107,6 +205,7 @@ export default function Dashboard({
   if (!alumno) return null;
 
   const materiaId = materiaIdProp ?? getMateriaIdByBoleta(alumno.boleta);
+  const animationKey = `${alumno.boleta}-${materiaId}`;
 
   const tareas = getCalificacionesPorTarea(alumno.boleta, materiaId);
   const dominioPorTema = getDominioPorTema(alumno.boleta, materiaId);
@@ -173,14 +272,22 @@ export default function Dashboard({
   };
 
   return (
-    <div className="flex min-w-0 w-full flex-col gap-xl">
+    <motion.div
+      className="flex min-w-0 w-full flex-col gap-xl"
+      initial="hidden"
+      animate="visible"
+      variants={dashboardContainerVariants}
+    >
       {/* Row 1: Radar + Donut */}
       <div className="grid min-w-0 gap-xl lg:grid-cols-[1.4fr_1fr]">
-        <ChartCard
+        <AnimatedChartCard
+          key={`${animationKey}-0`}
+          index={0}
           title="Dominio por tema"
           description="Promedio por área temática — identifica en qué unidades falla el alumno"
           accent="radar"
           featured
+          chartClassName="mx-auto aspect-square max-h-[280px]"
         >
           <ChartContainer config={radarConfig} className="mx-auto aspect-square max-h-[280px]">
             <RadarChart data={dominioPorTema}>
@@ -203,16 +310,21 @@ export default function Dashboard({
                 fill="var(--color-promedio)"
                 fillOpacity={0.35}
                 strokeWidth={2}
+                animationDuration={800}
+                animationEasing="ease-out"
               />
             </RadarChart>
           </ChartContainer>
-        </ChartCard>
+        </AnimatedChartCard>
 
-        <ChartCard
+        <AnimatedChartCard
+          key={`${animationKey}-1`}
+          index={1}
           title="Estado de entregas"
           description={`${estadoEntregas.total} tareas en el parcial`}
           accent="entregas"
           featured
+          chartClassName="mx-auto aspect-square max-h-[280px]"
         >
           <ChartContainer config={entregasConfig} className="mx-auto aspect-square max-h-[280px]">
             <PieChart>
@@ -240,6 +352,8 @@ export default function Dashboard({
                 outerRadius={90}
                 strokeWidth={2}
                 stroke="#FFFFFF"
+                animationDuration={650}
+                animationEasing="ease-out"
               >
                 {entregasChartData.map((entry) => (
                   <Cell key={entry.estado} fill={entry.fill} />
@@ -254,14 +368,17 @@ export default function Dashboard({
               <ChartLegend content={<ChartLegendContent nameKey="estado" />} />
             </PieChart>
           </ChartContainer>
-        </ChartCard>
+        </AnimatedChartCard>
       </div>
 
       {/* Row 2: Bar chart per task (full width) */}
-      <ChartCard
+      <AnimatedChartCard
+        key={`${animationKey}-2`}
+        index={2}
         title="Calificación por tarea"
         description="Evolución cronológica — verde ≥6, rojo <6, gris = no entregada"
         accent="tareas"
+        chartClassName="aspect-[2/1] max-h-[260px] w-full"
       >
         <ChartContainer config={tareasConfig} className="aspect-[2/1] max-h-[260px] w-full">
           <BarChart data={tareasChartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -301,7 +418,12 @@ export default function Dashboard({
                 />
               }
             />
-            <Bar dataKey="calificacion" radius={[4, 4, 0, 0]}>
+            <Bar
+              dataKey="calificacion"
+              radius={[4, 4, 0, 0]}
+              animationDuration={700}
+              animationEasing="ease-out"
+            >
               {tareasChartData.map((entry) => (
                 <Cell key={entry.tarea} fill={entry.fill} />
               ))}
@@ -322,14 +444,17 @@ export default function Dashboard({
             No entregada
           </span>
         </div>
-      </ChartCard>
+      </AnimatedChartCard>
 
       {/* Row 3: Area + Line */}
       <div className="grid min-w-0 gap-xl lg:grid-cols-2">
-        <ChartCard
+        <AnimatedChartCard
+          key={`${animationKey}-3`}
+          index={3}
           title="Asistencia semanal"
           description="Patrón de inasistencias a lo largo del parcial"
           accent="asistencia"
+          chartClassName="aspect-[4/3] max-h-[240px] w-full"
         >
           <ChartContainer config={asistenciaConfig} className="aspect-[4/3] max-h-[240px] w-full">
             <AreaChart data={asistenciaSemanal}>
@@ -370,16 +495,21 @@ export default function Dashboard({
                 stroke={COLOR_LIME}
                 fill="url(#fillAsistencia)"
                 strokeWidth={2}
+                animationDuration={800}
+                animationEasing="ease-out"
               />
             </AreaChart>
           </ChartContainer>
-        </ChartCard>
+        </AnimatedChartCard>
 
         {showTrend && (
-          <ChartCard
+          <AnimatedChartCard
+            key={`${animationKey}-4`}
+            index={4}
             title="Tendencia vs promedio del grupo"
             description="Compara el rendimiento individual con el resto del grupo"
             accent="tendencia"
+            chartClassName="aspect-[4/3] max-h-[240px] w-full"
           >
             <ChartContainer config={tendenciaConfig} className="aspect-[4/3] max-h-[240px] w-full">
               <LineChart data={tendenciaConGrupo}>
@@ -410,6 +540,8 @@ export default function Dashboard({
                   strokeWidth={2.5}
                   dot={{ fill: COLOR_RIESGO, r: 4 }}
                   activeDot={{ r: 6 }}
+                  animationDuration={900}
+                  animationEasing="ease-out"
                 />
                 <Line
                   type="monotone"
@@ -418,18 +550,23 @@ export default function Dashboard({
                   strokeWidth={2}
                   strokeDasharray="6 4"
                   dot={{ fill: COLOR_VIOLET, r: 3 }}
+                  animationDuration={900}
+                  animationEasing="ease-out"
                 />
               </LineChart>
             </ChartContainer>
-          </ChartCard>
+          </AnimatedChartCard>
         )}
       </div>
 
       {/* Row 4: Partial comparison */}
-      <ChartCard
+      <AnimatedChartCard
+        key={`${animationKey}-5`}
+        index={5}
         title="Parcial anterior vs actual"
         description={`Declive de ${alumno.declive > 0 ? '+' : ''}${alumno.declive} puntos`}
         accent="parcial"
+        chartClassName="aspect-[3/1] max-h-[200px] w-full"
       >
         <ChartContainer config={parcialConfig} className="aspect-[3/1] max-h-[200px] w-full">
           <BarChart data={parcialChartData} barCategoryGap="35%">
@@ -452,6 +589,8 @@ export default function Dashboard({
               dataKey="calificacion"
               fill="var(--color-calificacion)"
               radius={[6, 6, 0, 0]}
+              animationDuration={700}
+              animationEasing="ease-out"
             >
               {parcialChartData.map((entry) => (
                 <Cell
@@ -468,28 +607,27 @@ export default function Dashboard({
             </Bar>
           </BarChart>
         </ChartContainer>
-      </ChartCard>
+      </AnimatedChartCard>
 
       {/* Row 5: Risk factors */}
       {riskFactors.length > 0 && (
-        <Card elevated className="min-w-0 w-full">
-          <CardHeader className={cn('rounded-t-xl', CHART_HEADER_GRADIENT.riesgo)}>
-            <CardTitle>Factores de riesgo detectados</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex flex-wrap gap-sm">
-              {riskFactors.map((factor) => (
-                <span
-                  key={factor}
-                  className="rounded-xs border border-riesgo-alto/30 bg-riesgo-alto/20 px-sm py-xs font-ui text-sm text-riesgo-alto"
-                >
-                  {factor}
-                </span>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <AnimatedSectionCard
+          key={`${animationKey}-6`}
+          index={6}
+          title="Factores de riesgo detectados"
+        >
+          <div className="flex flex-wrap gap-sm">
+            {riskFactors.map((factor) => (
+              <span
+                key={factor}
+                className="rounded-xs border border-riesgo-alto/30 bg-riesgo-alto/20 px-sm py-xs font-ui text-sm text-riesgo-alto"
+              >
+                {factor}
+              </span>
+            ))}
+          </div>
+        </AnimatedSectionCard>
       )}
-    </div>
+    </motion.div>
   );
 }

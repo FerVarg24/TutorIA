@@ -140,8 +140,6 @@ export default function MateriaRoja() {
         <SelectorGuiaEstudio
           materia={materia.nombre}
           materiaId={id}
-          temasDificiles={temasDificiles}
-          material={MATERIAL_POR_MATERIA[id] ?? ''}
           onClose={() => setShowSelectorGuia(false)}
         />
       )}
