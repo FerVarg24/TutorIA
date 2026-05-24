@@ -2,8 +2,6 @@
 
 # TutorIA
 
-<img src="src/assets/mascota.svg" alt="Mascota TutorIA" width="120" />
-
 **Detecta el riesgo antes de que sea tarde.**
 
 Plataforma de intervención temprana con IA para profesores y alumnos del **IPN**.
